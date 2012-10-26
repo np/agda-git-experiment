@@ -112,6 +112,7 @@ topoSort parent xs = fmap (Perm (size xs)) $ topo g
     g	      = [ (n, parents x) | (n, x) <- nodes ]
     parents x = [ n | (n, y) <- nodes, parent y x ]
 
+{-
     topo :: Eq node => [(node, [node])] -> Maybe [node]
     topo [] = return []
     topo g  = case xs of
@@ -122,3 +123,21 @@ topoSort parent xs = fmap (Perm (size xs)) $ topo g
       where
 	xs = [ x | (x, []) <- g ]
 	remove x g = [ (y, filter (/= x) ys) | (y, ys) <- g, x /= y ]
+	-}
+
+    topo :: Eq node => [(node, [node])] -> Maybe [node]
+    topo [] = return []
+    topo g  = go [] (map fst g)
+
+      where go :: [node] -> [node] -> Maybe [node]
+            go seen [] = return []
+            go seen (x:xs)
+              | x `elem` seen = fail "cycle detected"
+              | otherwise     =
+                  case lookup x g of
+                    Just [] -> fmap (x :) $ go (x:seen) xs
+                    Just ps -> go seen (ps++x:(xs \\ )
+              {-
+                  if null ps then fmap (x :) $ go (x:seen) (ps++xs)
+                             else go seen (ps++x:xs)
+                             -}
