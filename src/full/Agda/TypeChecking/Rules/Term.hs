@@ -577,6 +577,8 @@ checkExpr e t =
                   postponeTypeCheckingProblem_ e t
 	    _         -> typeError $ ShouldBeRecordType t
 
+        A.RecModule _ m -> undefined
+
         A.RecUpdate ei recexpr fs -> do
           case ignoreSharing $ unEl t of
             Def r vs  -> do

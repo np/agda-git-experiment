@@ -55,6 +55,7 @@ data Expr
         | Let  ExprInfo [LetBinding] Expr    -- ^
         | ETel Telescope                     -- ^ only used when printing telescopes
 	| Rec  ExprInfo [(C.Name, Expr)]     -- ^ record construction
+	| RecModule ExprInfo ModuleName      -- ^ record construction from a module name
 	| RecUpdate ExprInfo Expr [(C.Name, Expr)]     -- ^ record update
 	| ScopedExpr ScopeInfo Expr	     -- ^ scope annotation
         | QuoteGoal ExprInfo Name Expr       -- ^ binds @Name@ to current type in @Expr@
@@ -289,6 +290,7 @@ instance HasRange Expr where
     getRange (Prop i)		   = getRange i
     getRange (Let i _ _)	   = getRange i
     getRange (Rec i _)		   = getRange i
+    getRange (RecModule i _)	   = getRange i
     getRange (RecUpdate i _ _)     = getRange i
     getRange (ETel tel)            = getRange tel
     getRange (ScopedExpr _ e)	   = getRange e
@@ -392,6 +394,7 @@ instance KillRange Expr where
   killRange (Prop i)               = killRange1 Prop i
   killRange (Let i ds e)           = killRange3 Let i ds e
   killRange (Rec i fs)             = Rec (killRange i) (map (id -*- killRange) fs)
+  killRange (RecModule i m)        = RecModule (killRange i) m
   killRange (RecUpdate i e fs)     = RecUpdate (killRange i)
                                                (killRange e)
                                                (map (id -*- killRange) fs)
@@ -531,6 +534,7 @@ allNames (FunDef _ q _ cls)       = q <| Fold.foldMap allNamesC cls
                                                 allNamesE e
   allNamesE ETel {}                 = __IMPOSSIBLE__
   allNamesE (Rec _ fields)          = Fold.foldMap allNamesE (map snd fields)
+  allNamesE (RecModule _ _)         = Seq.empty
   allNamesE (RecUpdate _ e fs)      = allNamesE e >< Fold.foldMap allNamesE (map snd fs)
   allNamesE (ScopedExpr _ e)        = allNamesE e
   allNamesE (QuoteGoal _ _ e)       = allNamesE e
@@ -662,6 +666,7 @@ substExpr s e = case e of
                                  (substExpr s e)
   ETel t                -> e
   Rec  i nes            -> Rec i (fmap (fmap (substExpr s)) nes)
+  RecModule{}           -> e
   RecUpdate i e nes     -> RecUpdate i (substExpr s e)
                                        (fmap (fmap (substExpr s)) nes)
   -- XXX: Do we need to do more with ScopedExprs?

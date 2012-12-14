@@ -277,6 +277,7 @@ instance Rename Expr where
       Let i bs e            -> Let i (rename rho bs) (rename rho e)
       ETel tel              -> ETel (rename rho tel)
       Rec i fes             -> Rec i $ map (id -*- rename rho) fes
+      RecModule i m         -> RecModule i m
       RecUpdate i e fes     -> RecUpdate i (rename rho e) $ map (id -*- rename rho) fes
       ScopedExpr i e        -> ScopedExpr i (rename rho e)
       QuoteGoal i n e       -> QuoteGoal i n (rename rho e)

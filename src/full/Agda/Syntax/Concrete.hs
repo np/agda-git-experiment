@@ -81,6 +81,7 @@ data Expr
 	| Prop !Range			       -- ^ ex: @Prop@
 	| SetN !Range Integer                  -- ^ ex: @Set0, Set1, ..@
 	| Rec !Range [(Name, Expr)]	       -- ^ ex: @record {x = a; y = b}@
+	| RecModule !Range QName	       -- ^ ex: @record M@
 	| RecUpdate !Range Expr [(Name, Expr)] -- ^ ex: @record e {x = a; y = b}@
 	| Let !Range [Declaration] Expr	       -- ^ ex: @let Ds in e@
 	| Paren !Range Expr		       -- ^ ex: @(e)@
@@ -415,6 +416,7 @@ instance HasRange Expr where
 	    HiddenArg r _	-> r
 	    InstanceArg r _	-> r
 	    Rec r _		-> r
+	    RecModule r _	-> r
 	    RecUpdate r _ _	-> r
             ETel tel            -> getRange tel
             QuoteGoal r _ _     -> r
@@ -577,6 +579,7 @@ instance KillRange Expr where
   killRange (Prop _)            = Prop noRange
   killRange (SetN _ n)          = SetN noRange n
   killRange (Rec _ ne)          = killRange1 (Rec noRange) ne
+  killRange (RecModule _ ne)    = killRange1 (RecModule noRange) ne
   killRange (RecUpdate _ e ne)  = killRange2 (RecUpdate noRange) e ne
   killRange (Let _ d e)         = killRange2 (Let noRange) d e
   killRange (Paren _ e)         = killRange1 (Paren noRange) e

@@ -598,6 +598,10 @@ instance ToAbstract C.Expr A.Expr where
         es <- toAbstractCtx TopCtx es
         return $ A.Rec (ExprRange r) $ zip xs es
 
+  -- Record construction from a module name
+      C.RecModule r m  ->
+        A.RecModule (ExprRange r) <$> toAbstract (OldModuleName m)
+
   -- Record update
       C.RecUpdate r e fs -> do
         let (xs, es) = unzip fs

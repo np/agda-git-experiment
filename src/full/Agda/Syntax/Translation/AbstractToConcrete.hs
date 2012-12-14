@@ -403,6 +403,10 @@ instance ToConcrete A.Expr C.Expr where
         es <- toConcreteCtx TopCtx es
         return $ C.Rec (getRange i) $ zip xs es
 
+    toConcrete (A.RecModule i m) =
+      bracket appBrackets $ do
+        C.RecModule (getRange i) <$> toConcrete m
+
     toConcrete (A.RecUpdate i e fs) =
       bracket appBrackets $ do
         let (xs, es) = unzip fs

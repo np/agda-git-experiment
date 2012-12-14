@@ -164,6 +164,7 @@ instance Pretty Expr where
 	    Rec _ xs  -> sep (
 	        [ text "record {" ] ++
 	        punctuate (text ";") (map recPr xs)) <+> text "}"
+	    RecModule _ m  -> sep [ text "record " , pretty m ]
 	    RecUpdate _ e xs ->
 	            sep [ text "record" <+> pretty e <+> text "{" ]
 	        <+> sep (punctuate (text ";") (map recPr xs))

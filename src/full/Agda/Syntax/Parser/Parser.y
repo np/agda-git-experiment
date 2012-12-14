@@ -572,6 +572,7 @@ Expr3NoCurly
     | Id '@' Expr3			{ As (getRange ($1,$2,$3)) $1 $3 }
     | '.' Expr3				{ Dot (fuseRange $1 $2) $2 }
     | 'record' '{' FieldAssignments '}' { Rec (getRange ($1,$2,$3,$4)) $3 }
+    | 'record' ModuleName {- TODO arguments -} { RecModule (getRange ($1,$2)) $2 }
     | 'record' Expr3NoCurly '{' FieldAssignments '}' { RecUpdate (getRange ($1,$2,$3,$4,$5)) $2 $4 }
 
 Expr3
