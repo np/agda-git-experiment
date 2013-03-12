@@ -64,6 +64,7 @@ data CommandLineOptions =
             , optCompile              :: Bool
             , optEpicCompile          :: Bool
             , optJSCompile            :: Bool
+            , optAgdaCompile          :: Bool
             , optCompileDir           :: Maybe FilePath
               -- ^ In the absence of a path the project root is used.
 	    , optGenerateVimFile      :: Bool
@@ -137,6 +138,7 @@ defaultOptions =
             , optCompile              = False
             , optEpicCompile          = False
             , optJSCompile            = False
+            , optAgdaCompile          = False
             , optCompileDir           = Nothing
 	    , optGenerateVimFile      = False
             , optGenerateLaTeX        = False
@@ -201,7 +203,7 @@ checkOpts opts
       "Unsolved meta variables are not allowed when compiling.\n"
   | not (atMostOne [optGHCiInteraction, isJust . optInputFile]) =
       Left "Choose at most one: input file or --interaction.\n"
-  | not (atMostOne $ interactive ++ [optCompile, optEpicCompile, optJSCompile]) =
+  | not (atMostOne $ interactive ++ [optCompile, optEpicCompile, optJSCompile, optAgdaCompile]) =
       Left "Choose at most one: compilers/--interactive/--interaction.\n"
   | not (atMostOne $ interactive ++ [optGenerateHTML]) =
       Left "Choose at most one: --html/--interactive/--interaction.\n"
@@ -291,6 +293,7 @@ interactiveFlag  o = return $ o { optInteractive    = True
 compileFlag      o = return $ o { optCompile    = True }
 compileEpicFlag  o = return $ o { optEpicCompile = True}
 compileJSFlag    o = return $ o { optJSCompile = True}
+compileAgdaFlag  o = return $ o { optAgdaCompile = True}
 compileDirFlag f o = return $ o { optCompileDir = Just f }
 ghcFlag        f o = return $ o { optGhcFlags   = f : optGhcFlags o }
 epicFlagsFlag  s o = return $ o { optEpicFlags  = optEpicFlags o ++ [s]}
