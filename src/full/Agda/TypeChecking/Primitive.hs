@@ -260,6 +260,26 @@ fromLiteral f = fromReducedTerm $ \t -> case t of
     Lit lit -> f lit
     _	    -> Nothing
 
+-- unsafeSubst : {a p : Level} {A : Set a} {x y : A} (P : A → Set p) → x ≡ y → P x → P y
+primUnsafeSubst :: TCM PrimitiveImpl
+primUnsafeSubst = do
+  clo <- commandLineOptions
+  when (optSafe clo) (typeError SafeFlagPrimUnsafeSubst)
+  t <- hPi "a" (el primLevel) $
+       hPi "p" (el primLevel) $
+       hPi "A" (return . sort . varSort $ 1) $
+       hPi "x" (El (varSort 2) <$> varM 0) $
+       hPi "y" (El (varSort 3) <$> varM 1) $
+       nPi  "P" ((El (varSort 4) <$> varM 2) --> (return . sort . varSort $ 3)) $
+       (El (varSort 5) <$>
+          primEquality <#> varM 5 <#> varM 3 <@> varM 2 <@> varM 1) -->
+       (El (varSort 4) <$> varM 0 <@> varM 2) -->
+       (El (varSort 4) <$> varM 0 <@> varM 1)
+  return $ PrimImpl t $ PrimFun __IMPOSSIBLE__ 8 $ \ts ->
+    case ts of
+      [a, p, _A, x, y, _P, eq, _Px] -> redReturn (unArg _Px)
+      _ -> __IMPOSSIBLE__
+
 -- trustMe : {a : Level} {A : Set a} {x y : A} -> x ≡ y
 primTrustMe :: TCM PrimitiveImpl
 primTrustMe = do
@@ -569,6 +589,7 @@ primitiveFunctions = Map.fromList
 
     -- Other stuff
     , "primTrustMe"         |-> primTrustMe
+    , "primUnsafeSubst"     |-> primUnsafeSubst
     , "primQNameEquality"  |-> mkPrimFun2 ((==) :: Rel QName)
     ]
     where
