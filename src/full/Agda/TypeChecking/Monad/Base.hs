@@ -1201,6 +1201,7 @@ data TypeError
         | SafeFlagPragma [String]
         | SafeFlagNoTerminationCheck
         | SafeFlagPrimTrustMe
+        | SafeFlagPrimUnsafeSubst
     -- Language option errors
         | NeedOptionCopatterns
           deriving (Typeable, Show)
