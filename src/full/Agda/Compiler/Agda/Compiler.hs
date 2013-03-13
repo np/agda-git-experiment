@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, NamedFieldPuns #-}
 
 module Agda.Compiler.Agda.Compiler where
 
@@ -16,7 +16,8 @@ import System.FilePath ( pathSeparator, splitFileName, (</>), (<.>) )
 import Agda.Interaction.FindFile ( findFile, findInterfaceFile )
 import Agda.Interaction.Imports ( isNewerThan )
 import Agda.Interaction.Options ( optCompileDir )
-import Agda.Syntax.Common ( Nat, Arg, unArg, Relevance(Relevant), defaultArgInfo )
+import Agda.Syntax.Common ( Nat, Arg, unArg, Relevance(..), defaultArgInfo,
+                            IsAbstract(..), Induction(..))
 import Agda.Syntax.Concrete.Name ( projectRoot )
 import Agda.Syntax.Abstract.Name
   ( ModuleName(MName), QName(QName), QNamed(QNamed),
@@ -33,15 +34,14 @@ import Agda.TypeChecking.Substitute ( absBody )
 import Agda.Syntax.Literal ( Literal(LitInt,LitFloat,LitString,LitChar,LitQName) )
 import Agda.TypeChecking.Level ( reallyUnLevelView )
 import Agda.TypeChecking.Monad
-  ( TCM, Definition(Defn), Definitions, Interface,
-    JSCode, Defn(Record,Datatype,Constructor,Primitive,Function,Axiom),
+  ( TCM, Definition(Defn), Definitions, Interface, Defn(..),
     iModuleName, iImportedModules, theDef, getConstInfo, typeOfConst,
     ignoreAbstractMode, miInterface, getVisitedModules,
     defName, defType, funClauses, funProjection,
     dataPars, dataIxs, dataClause, dataCons,
     conPars, conData, conSrcCon,
     recClause, recCon, recFields, recPars, recNamedCon,
-    primClauses, defJSDef )
+    primClauses )
 import Agda.TypeChecking.Monad.Options ( setCommandLineOptions, commandLineOptions, reportSLn )
 import Agda.TypeChecking.Reduce ( instantiateFull, normalise )
 import Agda.Utils.FileName ( filePath )
@@ -162,12 +162,79 @@ definition (q,d) = do
 typeSig :: QName -> Type -> TCM Doc
 typeSig q t = sep [ prettyA q <+> text ":" , nest 2 $ prettyI t ]
 
+block :: String -> TCM Doc -> TCM Doc
+block name inner = sep [text name, nest 2 inner]
+
+primitive :: QName -> Type -> TCM Doc
+primitive q t = block "primitive" $ typeSig q t
+
+abstract :: IsAbstract -> TCM Doc -> TCM Doc
+abstract AbstractDef = block "abstract"
+abstract ConcreteDef = id
+
+dataDecl :: QName -> Type -> TCM Doc
+dataDecl q t = text "data" <+> typeSig q t -- <+> "where"
+
+recordDecl :: QName -> Type -> TCM Doc
+recordDecl q t = text "record" <+> typeSig q t
+
+dataConstructor :: QName -> Type -> TCM Doc
+dataConstructor q t = text "constructor" <+> typeSig q t
+
 defn :: QName -> Type -> Defn -> TCM Doc -- Exp
-defn q t (Function { funProjection = Nothing, funClauses = cls }) = do
-  sig <- typeSig q t
-  cs <- mapM (prettyI . QNamed q) cls
-  return $ P.vcat (sig : cs)
-defn _ _ _ = return $ P.text "-- TODO"
+defn _ _ (Datatype {dataInduction=CoInductive}) = __IMPOSSIBLE__
+defn _ _ (Record   {recInduction=CoInductive}) = __IMPOSSIBLE__ --TODO
+defn _ _ (Constructor {conInd=CoInductive}) = __IMPOSSIBLE__
+defn q t Axiom = block "postulate" $ typeSig q t
+defn q t (Function { funAbstr, {-funProjection = Nothing,-} funClauses }) = do
+  abstract funAbstr $
+    vcat (typeSig q t : map (prettyI . QNamed q) funClauses)
+defn q t (Datatype
+            { -- dataPars         --  :: Nat           -- nof parameters
+	   -- , dataIxs          --  :: Nat           -- nof indices
+            -- , dataInduction
+          --  , dataClause         :: (Maybe Clause) -- this might be in an instantiated module
+             dataCons          -- :: [QName]        -- constructor names
+           -- , dataSort           :: Sort
+           -- , dataMutual         :: [QName]        -- ^ Mutually recursive functions, @data@s and @record@s.
+            , dataAbstr
+            }) =
+  abstract dataAbstr {-. vcat-} $
+    dataDecl q t -- dataPars dataIxs
+    -- $+$ (nest 2 . vcat $
+    --       map dataConstructor dataCons)
+defn q t (Record
+            { --recPars           :: Nat                  -- ^ Number of parameters.
+            --, recClause         :: Maybe Clause
+            --, recCon            :: QName                -- ^ Constructor name.
+            --, recNamedCon       :: Bool
+            --, recConType        :: Type                 -- ^ The record constructor's type.
+            --, recFields         :: [Arg A.QName]
+            --, recTel            :: Telescope            -- ^ The record field telescope
+            --, recMutual         :: [QName]              -- ^ Mutually recursive functions, @data@s and @record@s.
+            --, recEtaEquality    :: Bool                 -- ^ Eta-expand at this record type.  @False@ for unguarded recursive records.
+            --, recInduction
+            --, recRecursive      :: Bool                 -- ^ Recursive record.  Implies @recEtaEquality = False@.  Projections are not size-preserving.
+             recAbstr         -- :: IsAbstract
+            }) =
+  abstract recAbstr $ recordDecl q t
+
+defn q t (Constructor
+            { -- conPars   -- :: Nat         -- nof parameters
+	    -- , conSrcCon -- :: QName       -- original constructor (this might be in a module instance)
+	    -- , conData   :: QName       -- name of datatype or record type
+	     conAbstr  -- :: IsAbstract
+            -- , conInd
+            }) =
+  abstract conAbstr $ dataConstructor q t
+
+defn q t (Primitive
+            { primAbstr -- :: IsAbstract
+          --  , primName  -- :: String
+          --  , primClauses -- :: Maybe [Clause]
+          --  , primCompiled -- :: Maybe CompiledClauses
+            }) =
+  abstract primAbstr $ primitive q t
 
 prettyI :: (Reify i a, ToConcrete a c, P.Pretty c) => i -> TCM Doc
 prettyI = prettyA <=< reify
