@@ -50,7 +50,7 @@ import Agda.TypeChecking.SizedTypes
 import Agda.Compiler.MAlonzo.Compiler as MAlonzo
 import Agda.Compiler.Epic.Compiler as Epic
 import Agda.Compiler.JS.Compiler as JS
-import Agda.Compiler.Agda.Comp as Agda2Agda
+import Agda.Compiler.Agda.Compiler as Agda2Agda
 
 import Agda.Termination.TermCheck
 

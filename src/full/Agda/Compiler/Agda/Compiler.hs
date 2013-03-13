@@ -11,15 +11,15 @@ import Data.Map ( Map, fold, singleton, fromList, toList, toAscList, insertWith,
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 import System.Directory ( createDirectoryIfMissing )
-import System.FilePath ( pathSeparator, splitFileName, (</>) )
+import System.FilePath ( pathSeparator, splitFileName, (</>), (<.>) )
 
 import Agda.Interaction.FindFile ( findFile, findInterfaceFile )
 import Agda.Interaction.Imports ( isNewerThan )
 import Agda.Interaction.Options ( optCompileDir )
-import Agda.Syntax.Common ( Nat, Arg, unArg )
+import Agda.Syntax.Common ( Nat, Arg, unArg, Relevance(Relevant), defaultArgInfo )
 import Agda.Syntax.Concrete.Name ( projectRoot )
 import Agda.Syntax.Abstract.Name
-  ( ModuleName(MName), QName(QName),
+  ( ModuleName(MName), QName(QName), QNamed(QNamed),
     mnameToList, mnameFromList, freshName_, qualifyM,
     qnameName, qnameModule, isInModule, nameId )
 import Agda.Syntax.Internal
@@ -53,9 +53,14 @@ import qualified Agda.Utils.HashMap as HMap
 import Agda.Compiler.MAlonzo.Misc ( curDefs, curIF, curMName, setInterface )
 import Agda.Compiler.MAlonzo.Primitives ( repl )
 
---import Agda.Syntax.Concrete.Pretty
+import qualified Agda.Syntax.Concrete as C
+--import qualified Agda.Syntax.Abstract as A
+import Control.Monad ( (<=<) )
 import qualified Agda.Utils.Pretty as P
 import Agda.TypeChecking.Pretty
+--import Agda.Syntax.Concrete.Pretty
+import Agda.Syntax.Translation.InternalToAbstract
+import Agda.Syntax.Translation.AbstractToConcrete
 
 #include "../../undefined.h"
 
@@ -131,7 +136,7 @@ initializeCompiler :: TCM Compiler
 initializeCompiler = do
   prefix <- mnameFromList . (:[]) <$> freshName_ "AgdaAgda"
   let agdaMod :: ModuleName -> TCM FilePath
-      agdaMod = return . foldl1 (</>) . map show . mnameToList . qualifyM prefix
+      agdaMod = return . (<.> ".agda") . foldl1 (</>) . map show . mnameToList . qualifyM prefix
   return $ Compiler agdaMod (curModule prefix)
 
 compilerMain :: Interface -> TCM ()
@@ -154,16 +159,15 @@ definition (q,d) = do
   e <- defn q (defType d) (theDef d)
   return e -- (Export ls e)
 
+typeSig :: QName -> Type -> TCM Doc
+typeSig q t = sep [ prettyA q <+> text ":" , nest 2 $ prettyI t ]
+
 defn :: QName -> Type -> Defn -> TCM Doc -- Exp
 defn q t (Function { funProjection = Nothing, funClauses = cls }) = do
-  -- TODO print name and type
-  cs <- mapM clause cls
-  return $ P.vcat cs
+  sig <- typeSig q t
+  cs <- mapM (prettyI . QNamed q) cls
+  return $ P.vcat (sig : cs)
 defn _ _ _ = return $ P.text "-- TODO"
 
-clause :: Clause -> TCM Doc
-clause c = do
-  -- ps <- mapM (pattern . unArg) (clausePats c)
-  -- (av,bv,es) <- return (mapping (map unArg (clausePats c)))
-  e <- prettyTCM (clauseBody c)
-  return e -- (Case ps (subst av es e))
+prettyI :: (Reify i a, ToConcrete a c, P.Pretty c) => i -> TCM Doc
+prettyI = prettyA <=< reify

@@ -340,6 +340,7 @@ standardOptions =
                     "compile program using the MAlonzo backend (experimental)"
     , Option []     ["epic"] (NoArg compileEpicFlag) "compile program using the Epic backend"
     , Option []     ["js"] (NoArg compileJSFlag) "compile program using the JS backend"
+    , Option []     ["agda"] (NoArg compileAgdaFlag) "compile program using the Agda backend"
     , Option []     ["compile-dir"] (ReqArg compileDirFlag "DIR")
 		    ("directory for compiler output (default: the project root)")
     , Option []     ["ghc-flag"] (ReqArg ghcFlag "GHC-FLAG")
