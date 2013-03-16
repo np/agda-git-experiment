@@ -62,7 +62,7 @@ recordModule = mnameFromList . qnameToList
 --   does not refer to a record or the record is abstract.
 getRecordDef :: QName -> TCM Defn
 getRecordDef r = maybe err return =<< isRecord r
-  where err = typeError $ ShouldBeRecordType (El Prop $ Def r [])
+  where err = typeError $ ShouldBeRecordType (El sortDontCare $ Def r [])
 
 -- | Get the field names of a record.
 getRecordFieldNames :: QName -> TCM [I.Arg C.Name]
@@ -260,7 +260,7 @@ isSingletonRecord' regardIrrelevance r ps = do
       Right (Just v) -> underAbstraction dom tel $ \ tel ->
         emap (Arg (domInfo dom) v :) <$> check tel
   garbage :: Term
-  garbage = Sort Prop
+  garbage = unEl typeDontCare
 
 -- | Check whether a type has a unique inhabitant and return it.
 --   Can be blocked by a metavar.

@@ -220,7 +220,7 @@ newValueMetaCtx' b t vs = do
   return u
 
 newTelMeta :: Telescope -> TCM Args
-newTelMeta tel = newArgsMeta (abstract tel $ El Prop $ Sort Prop)
+newTelMeta tel = newArgsMeta (abstract tel typeDontCare)
 
 type Condition = I.Dom Type -> Abs Type -> Bool
 trueCondition _ _ = True
@@ -265,7 +265,7 @@ newRecordMeta r pars = do
 newRecordMetaCtx :: QName -> Args -> Telescope -> Args -> TCM Term
 newRecordMetaCtx r pars tel ctx = do
   ftel	 <- flip apply pars <$> getRecordFieldTypes r
-  fields <- newArgsMetaCtx (telePi_ ftel $ sort Prop) tel ctx
+  fields <- newArgsMetaCtx (telePi_ ftel typeDontCare) tel ctx
   con    <- getRecordConstructor r
   return $ Con con fields
 

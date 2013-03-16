@@ -196,7 +196,7 @@ compareTerm' cmp a m n =
                   (_  , n') <- etaExpandRecord r ps $ ignoreBlocking n
                   -- No subtyping on record terms
                   c <- getRecordConstructor r
-                  compareArgs [] (telePi_ tel $ sort Prop) (Con c []) m' n'
+                  compareArgs [] (telePi_ tel typeDontCare) (Con c []) m' n'
 
             else compareAtom cmp a' m n
         _ -> compareAtom cmp a' m n

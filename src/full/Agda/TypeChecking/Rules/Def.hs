@@ -692,6 +692,6 @@ actualConstructor c = do
             Con c _ -> return c
             Lam info b -> do
                 x <- freshName_ $ absName b
-                addCtx x (Dom info $ sort Prop) $
+                addCtx x (Dom info typeDontCare) $
                          stripLambdas (absBody b)
             _       -> typeError $ GenericError $ "Not a constructor: " ++ show c

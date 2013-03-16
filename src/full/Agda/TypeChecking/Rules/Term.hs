@@ -1288,7 +1288,7 @@ checkArguments exh expandIFS r args0@(Arg info e : args) t0 t1 =
 -- | Check that a list of arguments fits a telescope.
 checkArguments_ :: ExpandHidden -> Range -> [I.NamedArg A.Expr] -> Telescope -> TCM Args
 checkArguments_ exh r args tel = do
-    z <- runErrorT $ checkArguments exh ExpandInstanceArguments r args (telePi tel $ sort Prop) (sort Prop)
+    z <- runErrorT $ checkArguments exh ExpandInstanceArguments r args (telePi tel typeDontCare) typeDontCare
     case z of
       Right (args, _) -> return args
       Left _          -> __IMPOSSIBLE__
@@ -1301,7 +1301,7 @@ inferExpr :: A.Expr -> TCM (Term, Type)
 inferExpr e = case e of
   _ | Application hd args <- appView e, defOrVar hd -> traceCall (InferExpr e) $ do
     (f, t0) <- inferHead hd
-    res <- runErrorT $ checkArguments DontExpandLast ExpandInstanceArguments (getRange hd) (map convArg args) t0 (sort Prop)
+    res <- runErrorT $ checkArguments DontExpandLast ExpandInstanceArguments (getRange hd) (map convArg args) t0 typeDontCare
     case res of
       Right (vs, t1) -> return (f vs, t1)
       Left t1 -> fallback -- blocked on type t1
@@ -1334,7 +1334,7 @@ inferOrCheck e mt = case e of
     (f, t0) <- inferHead hd
     res <- runErrorT $ checkArguments DontExpandLast ExpandInstanceArguments
                                       (getRange hd) (map convArg args) t0 $
-                                      maybe (sort Prop) id mt
+                                      maybe typeDontCare id mt
     case res of
       Right (vs, t1) -> maybe (return (f vs, t1))
                               (\ t -> (,t) <$> coerce (f vs) t1 t)

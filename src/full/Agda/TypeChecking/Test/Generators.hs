@@ -75,7 +75,6 @@ data HiddenFreqs = HiddenFreqs
 
 data SortFreqs = SortFreqs
       { setFreqs :: [Int]
-      , propFreq :: Int
       }
   deriving Show
 
@@ -84,14 +83,8 @@ defaultFrequencies = Freqs
       { termFreqs   = TermFreqs	  { nameFreq = 40, litFreq = 1, sortFreq = 2, lamFreq = 10, piFreq = 5, funFreq = 5 }
       , nameFreqs   = NameFreqs	  { varFreq = 3, defFreq = 1, conFreq = 1 }
       , hiddenFreqs = HiddenFreqs { hiddenFreq = 1, notHiddenFreq = 5 }
-      , sortFreqs   = SortFreqs	  { setFreqs = [3, 1], propFreq = 1 }
+      , sortFreqs   = SortFreqs	  { setFreqs = [3, 1] }
       }
-
-noProp :: TermConfiguration -> TermConfiguration
-noProp conf = conf { tcFrequencies = fq { sortFreqs = sfq { propFreq = 0 } } }
-  where
-    fq	= tcFrequencies conf
-    sfq	= sortFreqs fq
 
 data UseLiterals = UseLit
       { useLitInt    :: Bool
@@ -205,12 +198,10 @@ genArgs conf = unSizedList <$> genC (isntTypeConf conf)
 
 instance GenC Sort where
   genC conf = frequency $
-    (propF, return Prop) :
     zip setFs (map (return . mkType) [0..])
     where
       freq f = f $ tcFrequencies conf
       setFs = freq (setFreqs . sortFreqs)
-      propF = freq (propFreq . sortFreqs)
 
 instance GenC Char where
   genC _ = elements [' '..'~'] -- TODO
@@ -416,12 +407,9 @@ instance ShrinkC a b => ShrinkC (Blocked a) (Blocked b) where
   shrinkC conf (NotBlocked x) = NotBlocked <$> shrinkC conf x
   noShrink = fmap noShrink
 
--- Andreas 2010-09-21: simplify? since Sort Prop is no longer abused as DontCare
 instance ShrinkC Sort Sort where
-  shrinkC conf Prop = []
-  shrinkC conf s = Prop : case s of
+  shrinkC conf s = case s of
     Type n     -> [] -- No Level instance yet -- Type <$> shrinkC conf n
-    Prop       -> __IMPOSSIBLE__
     Inf        -> []
     DLub s1 s2 -> __IMPOSSIBLE__
   noShrink = id
@@ -438,7 +426,6 @@ instance ShrinkC Type Type where
 
 instance ShrinkC Term Term where
   shrinkC conf (DontCare _)  = []
-  shrinkC conf (Sort Prop) = []
   shrinkC conf t	   = filter validType $ case ignoreSharing t of
     Var i args   -> map unArg args ++
 		    (uncurry Var <$> shrinkC conf (VarName i, NoType args))

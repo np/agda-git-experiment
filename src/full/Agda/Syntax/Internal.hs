@@ -270,13 +270,17 @@ compressPointerChain v =
 var :: Nat -> Term
 var i = Var i []
 
--- | A dummy type.
-typeDontCare :: Type
-typeDontCare = El Prop (Sort Prop)
-
 -- | Top sort (Set\omega).
 topSort :: Type
 topSort = El Inf (Sort Inf)
+
+-- | A dummy sort.
+sortDontCare :: Sort
+sortDontCare = Inf -- Prop
+
+-- | A dummy type.
+typeDontCare :: Type
+typeDontCare = topSort -- El Prop (Sort Prop)
 
 set0      = set 0
 set n     = sort $ mkType n

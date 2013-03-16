@@ -305,7 +305,7 @@ instance Abstract v => Abstract (Map k v) where
 abstractArgs :: Abstract a => Args -> a -> a
 abstractArgs args x = abstract tel x
     where
-        tel   = foldr (\(Common.Arg info x) -> ExtendTel (Common.Dom info $ sort Prop) . Abs x)
+        tel   = foldr (\(Common.Arg info x) -> ExtendTel (Common.Dom info typeDontCare) . Abs x)
                       EmptyTel
               $ zipWith (fmap . const) names args
         names = cycle $ map (:[]) ['a'..'z']

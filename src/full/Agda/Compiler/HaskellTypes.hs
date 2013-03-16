@@ -72,7 +72,7 @@ getHsType x = do
   case d of
     Just (HsType t)   -> return t
     Just (HsDefn t c) -> return hsUnit
-    _                 -> notAHaskellType (El Set $ Def x [])
+    _                 -> notAHaskellType (El sortDontCare $ Def x [])
 
 getHsVar :: Nat -> TCM HaskellCode
 getHsVar i = hsVar <$> nameOfBV i
@@ -110,7 +110,7 @@ haskellType = liftTCM . fromType
       v   <- reduce v
       reportSLn "compile.haskell.type" 50 $ "toHaskellType " ++ show v
       kit <- liftTCM coinductionKit
-      let err = notAHaskellType (El Set v)
+      let err = notAHaskellType (El sortDontCare v)
       case v of
         Var x args -> hsApp <$> getHsVar x <*> fromArgs args
         Def d args | Just d == (nameOfInf <$> kit) ->

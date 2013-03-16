@@ -80,8 +80,8 @@ insertImplicitPatterns exh ps tel@(ExtendTel arg tel') = case ps of
     dummy = defaultNamedArg ()
 
     insImp x tel = case insertImplicit x $ map (argFromDom . fmap fst) $ telToList tel of
-      BadImplicits   -> typeError $ WrongHidingInLHS (telePi tel $ sort Prop)
-      NoSuchName x   -> typeError $ WrongHidingInLHS (telePi tel $ sort Prop)
+      BadImplicits   -> typeError $ WrongHidingInLHS (telePi tel typeDontCare)
+      NoSuchName x   -> typeError $ WrongHidingInLHS (telePi tel typeDontCare)
       ImpInsert n    -> return $ Just n
       NoInsertNeeded -> return Nothing
 

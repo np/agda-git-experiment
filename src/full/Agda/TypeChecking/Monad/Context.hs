@@ -107,7 +107,7 @@ addCtxString_ s = addCtxString s dummyDom
 
 -- | Context entries without a type have this dummy type.
 dummyDom :: Dom Type
-dummyDom = Common.Dom defaultArgInfo $ El Prop $ Sort Prop
+dummyDom = Common.Dom defaultArgInfo typeDontCare
 
 -- | Go under an abstraction.
 {-# SPECIALIZE underAbstraction :: Subst a => Dom Type -> Abs a -> (a -> TCM b) -> TCM b #-}

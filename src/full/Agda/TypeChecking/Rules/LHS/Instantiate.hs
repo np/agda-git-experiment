@@ -98,7 +98,7 @@ instantiateTel s tel = liftTCM $ do
   p <- case reorderTel tel3 of
     Nothing -> inContext [] $ do
       xs <- mapM freshName_ names3
-      addCtxs xs (Dom defaultArgInfo prop) $ do
+      addCtxs xs (Dom defaultArgInfo typeDontCare) $ do
         err <- sep [ text "Recursive telescope in left hand side:"
                    , fsep [ parens (prettyTCM x <+> text ":" <+> prettyTCM t)
                           | (x, t) <- zip xs tel3 ]

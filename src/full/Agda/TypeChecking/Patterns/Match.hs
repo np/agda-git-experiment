@@ -96,10 +96,9 @@ matchPattern (Arg info' (ConP c _ ps))     (Arg info v) =
           -- Andreas, 2010-09-07 matching a record constructor against
           -- something irrelevant will just continue matching against
           -- irrelevant stuff
-          -- NotBlocked (Sort Prop)
           _  | isIrrelevant info -> do
 		(m, vs) <- matchPatterns ps $
-                  repeat $ setRelevance Irrelevant $ defaultArg $ Sort Prop
+                  repeat $ setRelevance Irrelevant $ defaultArg (unEl typeDontCare)
 		return (m, Arg info $ Con c vs)
 	  NotBlocked (Con c' vs)
 	    | c == c'             -> do

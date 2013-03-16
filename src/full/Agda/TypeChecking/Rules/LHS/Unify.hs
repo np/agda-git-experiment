@@ -714,7 +714,7 @@ unifyIndices flex a us vs = liftTCM $ do
               -- (in case of partial application)
               TelV tel0 _ <- telView b
               let tel = telFromList $ take (length vs) $ telToList tel0
-                  b'  = telePi tel (sort Prop)
+                  b'  = telePi tel typeDontCare
               withMetaInfo' mv $ do
                 tel <- getContextTelescope
                 -- important: create the meta in the same environment as the original meta
