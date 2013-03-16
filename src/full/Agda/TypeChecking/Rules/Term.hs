@@ -632,10 +632,6 @@ checkExpr e t =
 	A.Set _ n    -> do
           n <- ifM typeInType (return 0) (return n)
 	  coerce (Sort $ mkType n) (sort $ mkType $ n + 1) t
-	A.Prop _     -> do
-          typeError $ GenericError "Prop is no longer supported"
-          -- s <- ifM typeInType (return $ mkType 0) (return Prop)
-	  -- coerce (Sort Prop) (sort $ mkType 1) t
 
 	A.Rec _ fs  -> checkRecordExpression fs e t
 

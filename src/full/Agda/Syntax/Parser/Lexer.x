@@ -152,7 +152,6 @@ tokens :-
 <0,code> abstract	{ keyword KwAbstract }
 <0,code> private	{ keyword KwPrivate }
 <0,code> Set		{ keyword KwSet }
-<0,code> Prop		{ keyword KwProp }
 <0,code> forall		{ keyword KwForall }
 <0,code> Set @number	{ withInterval' (read . drop 3) TokSetN }
 <0,code> quoteGoal	{ keyword KwQuoteGoal }

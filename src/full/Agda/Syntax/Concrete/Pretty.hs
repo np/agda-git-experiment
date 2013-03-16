@@ -154,7 +154,6 @@ instance Pretty Expr where
 		    , pretty e
 		    ]
 	    Set _   -> text "Set"
-	    Prop _  -> text "Prop"
 	    SetN _ n	-> text "Set" <> text (showIndex n)
 	    Let _ ds e	->
 		sep [ text "let" <+> vcat (map pretty ds)

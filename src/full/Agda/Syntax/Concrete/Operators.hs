@@ -605,7 +605,6 @@ paren _   e@(QuestionMark _ _) = return $ \p -> e
 paren _   e@(Underscore _ _)   = return $ \p -> e
 paren _   e@(Set _)            = return $ \p -> e
 paren _   e@(SetN _ _)         = return $ \p -> e
-paren _   e@(Prop _)           = return $ \p -> e
 paren _   e@(Paren _ _)        = return $ \p -> e
 paren _   e@(As _ _ _)         = return $ \p -> e
 paren _   e@(Dot _ _)          = return $ \p -> e

@@ -72,7 +72,6 @@ data Expr
         | Pi   ExprInfo Telescope Expr	     -- ^
 	| Fun  ExprInfo (Arg Expr) Expr	     -- ^ independent function space
         | Set  ExprInfo Integer              -- ^ Set, Set1, Set2, ...
-        | Prop ExprInfo			     -- ^
         | Let  ExprInfo [LetBinding] Expr    -- ^
         | ETel Telescope                     -- ^ only used when printing telescopes
 	| Rec  ExprInfo Assigns              -- ^ record construction
@@ -108,7 +107,7 @@ data Declaration
             -- ^ the 'LamBinding's are 'DomainFree' and binds the parameters of the datatype.
         | RecSig     DefInfo QName Telescope Expr -- ^ lone record signature
         | RecDef     DefInfo QName (Maybe Induction) (Maybe QName) [LamBinding] Expr [Declaration]
-            -- ^ The 'Expr' gives the constructor type telescope, @(x1 : A1)..(xn : An) -> Prop@,
+            -- ^ The 'Expr' gives the constructor type telescope, @(x1 : A1)..(xn : An) -> Set@,
             --   and the optional name is the constructor's name.
 	| ScopedDecl ScopeInfo [Declaration]  -- ^ scope annotation
         deriving (Typeable, Show)
@@ -332,7 +331,6 @@ instance HasRange Expr where
     getRange (Pi i _ _)		   = getRange i
     getRange (Fun i _ _)	   = getRange i
     getRange (Set i _)		   = getRange i
-    getRange (Prop i)		   = getRange i
     getRange (Let i _ _)	   = getRange i
     getRange (Rec i _)		   = getRange i
     getRange (RecUpdate i _ _)     = getRange i
@@ -435,7 +433,6 @@ instance KillRange Expr where
   killRange (Pi i a b)             = killRange3 Pi i a b
   killRange (Fun i a b)            = killRange3 Fun i a b
   killRange (Set i n)              = Set (killRange i) n
-  killRange (Prop i)               = killRange1 Prop i
   killRange (Let i ds e)           = killRange3 Let i ds e
   killRange (Rec i fs)             = Rec (killRange i) (map (id -*- killRange) fs)
   killRange (RecUpdate i e fs)     = RecUpdate (killRange i)
@@ -569,7 +566,6 @@ allNames (FunDef _ q _ cls)       = q <| Fold.foldMap allNamesC cls
                                                         allNamesE e
   allNamesE (Fun _ (Common.Arg _ e1) e2) = Fold.foldMap allNamesE [e1, e2]
   allNamesE Set {}                       = Seq.empty
-  allNamesE Prop {}                      = Seq.empty
   allNamesE (Let _ lbs e)                = Fold.foldMap allNamesLet lbs ><
                                                         allNamesE e
   allNamesE ETel {}                      = __IMPOSSIBLE__
@@ -700,7 +696,6 @@ substExpr s e = case e of
   Fun  i ae e           -> Fun i (fmap (substExpr s) ae)
                                  (substExpr s e)
   Set  i n              -> e
-  Prop i                -> e
   Let  i ls e           -> Let i (fmap (substLetBinding s) ls)
                                  (substExpr s e)
   ETel t                -> e

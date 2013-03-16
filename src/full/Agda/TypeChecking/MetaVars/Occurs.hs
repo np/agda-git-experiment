@@ -359,7 +359,6 @@ instance Occurs Sort where
     case s' of
       DLub s1 s2 -> uncurry DLub <$> occurs red (weakly ctx) m xs (s1,s2)
       Type a     -> Type <$> occurs red ctx m xs a
-      Prop       -> return s'
       Inf        -> return s'
 
   metaOccurs m s = do
@@ -367,7 +366,6 @@ instance Occurs Sort where
     case s of
       DLub s1 s2 -> metaOccurs m (s1,s2)
       Type a     -> metaOccurs m a
-      Prop       -> return ()
       Inf        -> return ()
 
 

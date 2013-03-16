@@ -190,7 +190,6 @@ errorString err = case err of
     OverlappingProjects {}                   -> "OverlappingProjects"
     PatternShadowsConstructor {}             -> "PatternShadowsConstructor"
     PatternSynonymArityMismatch {}           -> "PatternSynonymArityMismatch"
-    PropMustBeSingleton                      -> "PropMustBeSingleton"
     RepeatedVariablesInPattern{}             -> "RepeatedVariablesInPattern"
     SafeFlagPostulate{}                      -> "SafeFlagPostulate"
     SafeFlagPragma{}                         -> "SafeFlagPragma"
@@ -268,8 +267,6 @@ instance PrettyTCM TypeError where
                                  "" -> call
                                  r  -> call $$ nest 2 (text "(at" <+> text r <> text ")"))
                         (nub $ concatMap termErrCalls because))
-	    PropMustBeSingleton -> fwords
-		"Datatypes in Prop must have at most one constructor when proof irrelevance is enabled"
 	    DataMustEndInSort t -> fsep $
 		pwords "The type of a datatype must end in a sort."
 		++ [prettyTCM t] ++ pwords "isn't a sort."

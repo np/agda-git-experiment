@@ -209,7 +209,6 @@ instance Reduce Sort where
               case s of
                 DLub{}  -> return s
                 _       -> reduce s   -- TODO: not so nice
-            Prop       -> return s
             Type s'    -> levelSort <$> reduce s'
             Inf        -> return Inf
 
@@ -504,7 +503,6 @@ instance Normalise Sort where
       s <- reduce s
       case s of
         DLub s1 s2 -> dLub <$> normalise s1 <*> normalise s2
-        Prop       -> return s
         Type s     -> levelSort <$> normalise s
         Inf        -> return Inf
 
@@ -635,7 +633,6 @@ instance InstantiateFull Sort where
 	s <- instantiate s
 	case s of
 	    Type n     -> levelSort <$> instantiateFull n
-	    Prop       -> return s
 	    DLub s1 s2 -> dLub <$> instantiateFull s1 <*> instantiateFull s2
             Inf        -> return s
 

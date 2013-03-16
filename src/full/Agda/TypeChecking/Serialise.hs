@@ -488,7 +488,7 @@ instance EmbPrj A.Expr where
   icode (A.Pi   _ a b)          = icode2 11 a b
   icode (A.Fun  _ a b)          = icode2 12 a b
   icode (A.Set  _ a)            = icode1 13 a
-  icode (A.Prop _)              = icode0 14
+  -- 14 was Prop
   icode (A.Let  _ a b)          = icode2 15 a b
   icode (A.ETel a)              = icode1 16 a
   icode (A.Rec  _ a)            = icode1 17 a
@@ -518,7 +518,7 @@ instance EmbPrj A.Expr where
       valu [11, a, b] = valu2 (A.Pi i) a b
       valu [12, a, b] = valu2 (A.Fun i) a b
       valu [13, a]    = valu1 (A.Set i) a
-      valu [14]       = valu0 (A.Prop i)
+      -- 14 was Prop
       valu [15, a, b] = valu2 (A.Let i) a b
       valu [16, a]    = valu1 A.ETel a
       valu [17, a]    = valu1 (A.Rec i) a
@@ -746,11 +746,11 @@ instance EmbPrj LevelAtom where
 
 instance EmbPrj I.Sort where
   icode (Type  a  ) = icode1' a
-  icode Prop        = icode1 1 ()
+  -- 1 was Prop
   icode Inf         = icode1 4 ()
   icode (DLub a b)  = __IMPOSSIBLE__
   value = vcase valu where valu [a]    = valu1 Type  a
-                           valu [1, _] = valu0 Prop
+                           -- 1 was Prop
                            valu [4, _] = valu0 Inf
                            valu _      = malformed
 

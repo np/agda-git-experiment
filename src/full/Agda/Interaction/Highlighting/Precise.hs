@@ -64,7 +64,7 @@ data Aspect
   | String
   | Number
   | Symbol                     -- ^ Symbols like forall, =, ->, etc.
-  | PrimitiveType              -- ^ Things like Set and Prop.
+  | PrimitiveType              -- ^ Set essentially.
   | Name (Maybe NameKind) Bool -- ^ Is the name an operator part?
     deriving (Eq, Show, Typeable)
 

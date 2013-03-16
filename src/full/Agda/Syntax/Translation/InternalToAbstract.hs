@@ -600,7 +600,6 @@ instance DotVars A.Expr where
     A.Pi _ tel e           -> dotVars (tel, e)
     A.Fun _ a b            -> dotVars (a, b)
     A.Set _ _              -> Set.empty
-    A.Prop _               -> Set.empty
     A.Let _ _ _            -> __IMPOSSIBLE__
     A.Rec _ es             -> dotVars $ map snd es
     A.RecUpdate _ e es     -> dotVars (e, map snd es)
@@ -698,7 +697,6 @@ instance Reify Sort Expr where
                 I.Type a -> do
                   a <- reify a
                   return $ A.App exprInfo (A.Set exprInfo 0) (defaultNamedArg a)
-                I.Prop       -> return $ A.Prop exprInfo
                 I.Inf       -> A.Var <$> freshName_ "Setω"
                 I.DLub s1 s2 -> do
                   lub <- freshName_ "dLub" -- TODO: hack

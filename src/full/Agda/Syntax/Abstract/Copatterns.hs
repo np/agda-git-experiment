@@ -274,7 +274,6 @@ instance Rename Expr where
       Pi i tel e            -> Pi i (rename rho tel) (rename rho e)
       Fun i a e             -> Fun i (rename rho a) (rename rho e)
       Set{}                 -> e
-      Prop{}                -> e
       Let i bs e            -> Let i (rename rho bs) (rename rho e)
       ETel tel              -> ETel (rename rho tel)
       Rec i fes             -> Rec i $ map (id -*- rename rho) fes

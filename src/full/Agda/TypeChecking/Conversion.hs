@@ -159,12 +159,10 @@ compareTerm' cmp a m n =
   catchConstraint (ValueCmp cmp a' m n) $ do
     reportSDoc "tc.conv.term" 30 $ fsep
       [ text "compareTerm", prettyTCM m, prettyTCM cmp, prettyTCM n, text ":", prettyTCM a' ]
-    proofIrr <- proofIrrelevance
     isSize   <- isJust <$> isSizeType a'
     s        <- reduce $ getSort a'
     mlvl     <- mlevel
     case s of
-      Prop | proofIrr -> return ()
       _    | isSize   -> compareSizes cmp m n
       _               -> case ignoreSharing $ unEl a' of
         a | Just a == mlvl -> do
@@ -700,11 +698,6 @@ leqSort s1 s2 =
 
             (Type a, Type b) -> leqLevel a b
 
-	    (Prop    , Prop    )	     -> return ()
-	    (Type _  , Prop    )	     -> notLeq s1 s2
-
-	    (Prop    , Type _  )	     -> return ()
-
             (_       , Inf     )             -> return ()
             (Inf     , _       )             -> equalSort s1 s2
             (DLub{}  , _       )             -> equalSort s1 s2
@@ -958,10 +951,6 @@ equalSort s1 s2 =
 	case (s1, s2) of
 
             (Type a  , Type b  ) -> equalLevel a b
-
-	    (Prop    , Prop    ) -> return ()
-	    (Type _  , Prop    ) -> notEq s1 s2
-	    (Prop    , Type _  ) -> notEq s1 s2
 
             (Inf     , Inf     )             -> return ()
             (Inf     , Type (Max as@(_:_)))  -> mapM_ (isInf $ notEq s1 s2) as

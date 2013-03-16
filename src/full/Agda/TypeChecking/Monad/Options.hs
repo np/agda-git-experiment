@@ -213,9 +213,6 @@ getInputFile =
 hasInputFile :: TCM Bool
 hasInputFile = isJust <$> optInputFile <$> commandLineOptions
 
-proofIrrelevance :: TCM Bool
-proofIrrelevance = optProofIrrelevance <$> pragmaOptions
-
 hasUniversePolymorphism :: TCM Bool
 hasUniversePolymorphism = optUniversePolymorphism <$> pragmaOptions
 

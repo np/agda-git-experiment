@@ -1141,7 +1141,6 @@ data TypeError
 	| NotSupported String
         | CompilationError String
 	| TerminationCheckFailed [TerminationError]
-	| PropMustBeSingleton
 	| DataMustEndInSort Term
 {- UNUSED
         | DataTooManyParameters

@@ -258,7 +258,6 @@ inputFlag f o =
 versionFlag                  o = return $ o { optShowVersion               = True  }
 helpFlag                     o = return $ o { optShowHelp                  = True  }
 safeFlag                     o = return $ o { optSafe                      = True  }
-proofIrrelevanceFlag         o = return $ o { optProofIrrelevance          = True  }
 experimentalIrrelevanceFlag  o = return $ o { optExperimentalIrrelevance   = True  }
 noIrrelevantProjectionsFlag  o = return $ o { optIrrelevantProjections     = False }
 ignoreInterfacesFlag         o = return $ o { optIgnoreInterfaces          = True  }
@@ -384,8 +383,6 @@ pragmaOptions =
 		    "show irrelevant arguments when printing"
     , Option ['v']  ["verbose"]	(ReqArg verboseFlag "N")
                     "set verbosity level to N"
-    -- , Option []	    ["proof-irrelevance"] (NoArg proofIrrelevanceFlag)
-    --     	    "enable proof irrelevance (experimental feature)"
     , Option []	    ["allow-unsolved-metas"] (NoArg allowUnsolvedFlag)
 		    "allow unsolved meta variables (only needed in batch mode)"
     , Option []	    ["no-positivity-check"] (NoArg noPositivityFlag)

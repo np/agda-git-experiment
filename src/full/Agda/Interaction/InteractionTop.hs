@@ -874,7 +874,6 @@ instance LowerMeta SC.Expr where
       SC.Fun r ae1 e2      -> SC.Fun r (lowerMeta ae1) (go e2)
       SC.Pi tb e1          -> SC.Pi (lowerMeta tb) (go e1)
       SC.Set _             -> e
-      SC.Prop _            -> e
       SC.SetN _ _          -> e
       SC.ETel tel          -> SC.ETel (lowerMeta tel)
       SC.Let r ds e1       -> SC.Let r (lowerMeta ds) (go e1)

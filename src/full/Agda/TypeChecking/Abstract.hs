@@ -48,7 +48,6 @@ instance AbstractTerm Type where
 instance AbstractTerm Sort where
   abstractTerm u s = case s of
     Type n     -> Type $ absS n
-    Prop       -> Prop
     Inf        -> Inf
     DLub s1 s2 -> DLub (absS s1) (absS s2)
     where absS x = abstractTerm u x

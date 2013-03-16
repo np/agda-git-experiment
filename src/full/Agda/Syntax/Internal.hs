@@ -101,7 +101,6 @@ type Telescope = Tele (Dom Type)
 -- | Sorts.
 --
 data Sort = Type Level
-	  | Prop  -- ignore me
           | Inf
           | DLub Sort (Abs Sort)
             -- ^ if the free variable occurs in the second sort
@@ -281,13 +280,11 @@ topSort = El Inf (Sort Inf)
 
 set0      = set 0
 set n     = sort $ mkType n
-prop      = sort Prop
 sort s    = El (sSuc s) $ Sort s
 varSort n = Type $ Max [Plus 0 $ NeutralLevel $ Var n []]
 
 -- | Get the next higher sort.
 sSuc :: Sort -> Sort
-sSuc Prop            = mkType 1
 sSuc Inf             = Inf
 sSuc (DLub a b)      = DLub (sSuc a) (fmap sSuc b)
 sSuc (Type l)        = Type $ levelSuc l
@@ -441,7 +438,6 @@ instance KillRange Type where
 
 instance KillRange Sort where
   killRange s = case s of
-    Prop       -> Prop
     Inf        -> Inf
     Type a     -> killRange1 Type a
     DLub s1 s2 -> killRange2 DLub s1 s2

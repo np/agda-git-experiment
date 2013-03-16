@@ -123,17 +123,6 @@ checkDataDef i name ps cs =
         let nofIxs = dataIxs dataDef
             s      = dataSort dataDef
 
-	-- If proof irrelevance is enabled we have to check that datatypes in
-	-- Prop contain at most one element.
-	do  proofIrr <- proofIrrelevance
-	    case (proofIrr, s, cs) of
-		(True, Prop, _:_:_) -> setCurrentRange (getRange $ map conName cs) $
-                                        typeError PropMustBeSingleton
-                  where conName (A.Axiom _ _ c _) = c
-                        conName (A.ScopedDecl _ (d:_)) = conName d
-                        conName _ = __IMPOSSIBLE__
-		_		    -> return ()
-
 	-- Add the datatype to the signature with its constructors. It was previously
 	-- added without them.
 	addConstant name (Defn defaultArgInfo name t [] [] (defaultDisplayForm name) 0 noCompiledRep $

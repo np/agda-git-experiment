@@ -325,7 +325,6 @@ generateTokenInfo file = do
   tokenToCFile :: T.Token -> CompressedFile
   tokenToCFile (T.TokSetN (i, _))               = aToF PrimitiveType (P.getRange i)
   tokenToCFile (T.TokKeyword T.KwSet  i)        = aToF PrimitiveType (P.getRange i)
-  tokenToCFile (T.TokKeyword T.KwProp i)        = aToF PrimitiveType (P.getRange i)
   tokenToCFile (T.TokKeyword T.KwForall i)      = aToF Symbol (P.getRange i)
   tokenToCFile (T.TokKeyword _ i)               = aToF Keyword (P.getRange i)
   tokenToCFile (T.TokSymbol  _ i)               = aToF Symbol (P.getRange i)

@@ -443,7 +443,6 @@ instance ToConcrete A.Expr C.Expr where
 
     toConcrete (A.Set i 0)  = return $ C.Set (getRange i)
     toConcrete (A.Set i n)  = return $ C.SetN (getRange i) n
-    toConcrete (A.Prop i)   = return $ C.Prop (getRange i)
 
     toConcrete (A.Let i ds e) =
         bracket lamBrackets

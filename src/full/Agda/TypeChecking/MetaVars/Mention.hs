@@ -48,7 +48,6 @@ instance MentionsMeta Type where
 instance MentionsMeta Sort where
   mentionsMeta x s = case s of
     Type l     -> mentionsMeta x l
-    Prop       -> False
     Inf        -> False
     DLub s1 s2 -> mentionsMeta x (s1, s2)
 

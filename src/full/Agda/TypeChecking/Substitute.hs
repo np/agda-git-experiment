@@ -457,7 +457,6 @@ instance Subst Type where
 instance Subst Sort where
   applySubst rho s = case s of
     Type n     -> levelSort $ sub n
-    Prop       -> Prop
     Inf        -> Inf
     DLub s1 s2 -> DLub (sub s1) (sub s2)
     where sub x = applySubst rho x
@@ -743,8 +742,6 @@ instance (Subst a, Ord a) => Ord (Abs a) where
 -- Level stuff ------------------------------------------------------------
 
 sLub :: Sort -> Sort -> Sort
-sLub s Prop = s
-sLub Prop s = s
 sLub Inf _ = Inf
 sLub _ Inf = Inf
 sLub (Type (Max as)) (Type (Max bs)) = Type $ levelMax (as ++ bs)

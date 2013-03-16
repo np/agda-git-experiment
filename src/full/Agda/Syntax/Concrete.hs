@@ -92,7 +92,6 @@ data Expr
 	| Fun !Range Expr Expr                 -- ^ ex: @e -> e@ or @.e -> e@ (NYI: @{e} -> e@)
 	| Pi Telescope Expr		       -- ^ ex: @(xs:e) -> e@ or @{xs:e} -> e@
 	| Set !Range			       -- ^ ex: @Set@
-	| Prop !Range			       -- ^ ex: @Prop@
 	| SetN !Range Integer                  -- ^ ex: @Set0, Set1, ..@
 	| Rec !Range [(Name, Expr)]	       -- ^ ex: @record {x = a; y = b}@
 	| RecUpdate !Range Expr [(Name, Expr)] -- ^ ex: @record e {x = a; y = b}@
@@ -423,7 +422,6 @@ instance HasRange Expr where
 	    Fun r _ _		-> r
 	    Pi b e		-> fuseRange b e
 	    Set r		-> r
-	    Prop r		-> r
 	    SetN r _		-> r
 	    Let r _ _		-> r
 	    Paren r _		-> r
@@ -592,7 +590,6 @@ instance KillRange Expr where
   killRange (Fun _ e1 e2)       = killRange2 (Fun noRange) e1 e2
   killRange (Pi t e)            = killRange2 Pi t e
   killRange (Set _)             = Set noRange
-  killRange (Prop _)            = Prop noRange
   killRange (SetN _ n)          = SetN noRange n
   killRange (Rec _ ne)          = killRange1 (Rec noRange) ne
   killRange (RecUpdate _ e ne)  = killRange2 (RecUpdate noRange) e ne

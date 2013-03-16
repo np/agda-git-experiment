@@ -66,7 +66,6 @@ quotingKit = do
       quoteSortLevelTerm (Max [Plus 0 (NeutralLevel v)]) = set @@ quote v
       quoteSortLevelTerm _                     = unsupported
       quoteSort (Type t)    = quoteSortLevelTerm t
-      quoteSort Prop        = unsupportedSort
       quoteSort Inf         = unsupportedSort
       quoteSort DLub{}      = unsupportedSort
       quoteType (El s t) = el @@ quoteSort s @@ quote t

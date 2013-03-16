@@ -92,7 +92,7 @@ import Agda.Utils.Tuple
     'mutual'        { TokKeyword KwMutual $$ }
     'abstract'      { TokKeyword KwAbstract $$ }
     'private'       { TokKeyword KwPrivate $$ }
-    'Prop'          { TokKeyword KwProp $$ }
+    'Prop'          { parseError "Prop is no longer supported." }
     'Set'           { TokKeyword KwSet $$ }
     'forall'        { TokKeyword KwForall $$ }
     'syntax'        { TokKeyword KwSyntax $$ }
@@ -196,7 +196,7 @@ Token
     | 'mutual'	    { TokKeyword KwMutual $1 }
     | 'abstract'    { TokKeyword KwAbstract $1 }
     | 'private'	    { TokKeyword KwPrivate $1 }
-    | 'Prop'	    { TokKeyword KwProp $1 }
+    | 'Prop'        { parseError "Prop is no longer supported." }
     | 'Set'	    { TokKeyword KwSet $1 }
     | 'forall'	    { TokKeyword KwForall $1 }
     | 'syntax'      { TokKeyword KwSyntax $1 }
@@ -556,7 +556,7 @@ Expr3NoCurly
     | literal				{ Lit $1 }
     | '?'				{ QuestionMark (getRange $1) Nothing }
     | '_'				{ Underscore (getRange $1) Nothing }
-    | 'Prop'				{ Prop (getRange $1) }
+    | 'Prop'				{ parseError "Prop is no longer supported." }
     | 'Set'				{ Set (getRange $1) }
     | 'quote'                           { Quote (getRange $1) }
     | 'quoteTerm'                       { QuoteTerm (getRange $1) }

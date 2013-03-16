@@ -173,7 +173,6 @@ instance Free Sort where
     | fcIgnoreSorts conf == IgnoreAll = empty
     | otherwise                       = case s of
       Type a     -> freeVars' conf a
-      Prop       -> empty
       Inf        -> empty
       DLub s1 s2 -> weakly $ freeVars' conf (s1, s2)
 

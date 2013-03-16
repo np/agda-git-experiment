@@ -603,7 +603,6 @@ termTerm conf names f delayed pats0 t0 = do
            Type (Max [])              -> return Term.empty
            Type (Max [ClosedLevel _]) -> return Term.empty
            Type t -> loop pats Term.unknown (Level t) -- no guarded levels
-           Prop   -> return Term.empty
            Inf    -> return Term.empty
            DLub s1 (NoAbs x s2) -> Term.union <$> loopSort pats s1 <*> loopSort pats s2
            DLub s1 (Abs x s2)   -> liftM2 Term.union
