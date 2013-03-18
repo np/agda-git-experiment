@@ -891,6 +891,7 @@ instance LowerMeta SC.Expr where
       SC.HiddenArg r e	-> SC.HiddenArg r (lowerMeta e)
       SC.InstanceArg r e  -> SC.InstanceArg r (lowerMeta e)
       SC.QuoteGoal r x e  -> SC.QuoteGoal r x (lowerMeta e)
+      e@SC.QuoteContext{} -> e
       e@SC.Quote{}      -> e
       e@SC.QuoteTerm{}  -> e
       e@SC.Unquote{}    -> e

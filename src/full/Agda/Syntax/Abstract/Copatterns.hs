@@ -281,11 +281,12 @@ instance Rename Expr where
       RecUpdate i e fes     -> RecUpdate i (rename rho e) $ map (id -*- rename rho) fes
       ScopedExpr i e        -> ScopedExpr i (rename rho e)
       QuoteGoal i n e       -> QuoteGoal i n (rename rho e)
-      Quote i               -> e
-      QuoteTerm i           -> e
-      Unquote i             -> e
+      QuoteContext{}        -> e
+      Quote{}               -> e
+      QuoteTerm{}           -> e
+      Unquote{}             -> e
       DontCare e            -> DontCare (rename rho e)
-      PatternSyn n          -> e
+      PatternSyn{}          -> e
 
 instance Rename LetBinding where
   rename rho e =

@@ -110,6 +110,7 @@ import Agda.Utils.Tuple
     'COMPILED_JS'   { TokKeyword KwCOMPILED_JS $$ }
     'STATIC'        { TokKeyword KwSTATIC $$ }
     'quoteGoal'     { TokKeyword KwQuoteGoal $$ }
+    'quoteContext'  { TokKeyword KwQuoteContext $$ }
     'quote'         { TokKeyword KwQuote $$ }
     'quoteTerm'     { TokKeyword KwQuoteTerm $$ }
     'unquote'       { TokKeyword KwUnquote $$ }
@@ -214,6 +215,7 @@ Token
     | 'ETA'           { TokKeyword KwETA $1 }
     | 'NO_TERMINATION_CHECK' { TokKeyword KwNO_TERMINATION_CHECK $1 }
     | 'quoteGoal'     { TokKeyword KwQuoteGoal $1 }
+    | 'quoteContext'  { TokKeyword KwQuoteContext $1 }
     | 'quote'         { TokKeyword KwQuote $1 }
     | 'quoteTerm'     { TokKeyword KwQuoteTerm $1 }
     | 'unquote'       { TokKeyword KwUnquote $1 }
@@ -558,6 +560,7 @@ Expr3NoCurly
     | '_'				{ Underscore (getRange $1) Nothing }
     | 'Prop'				{ Prop (getRange $1) }
     | 'Set'				{ Set (getRange $1) }
+    | 'quoteContext'                    { QuoteContext (getRange $1) }
     | 'quote'                           { Quote (getRange $1) }
     | 'quoteTerm'                       { QuoteTerm (getRange $1) }
     | 'unquote'                         { Unquote (getRange $1) }
