@@ -630,6 +630,7 @@ instance ToAbstract C.Expr A.Expr where
       C.Quote r -> return $ A.Quote (ExprRange r)
       C.QuoteTerm r -> return $ A.QuoteTerm (ExprRange r)
       C.Unquote r -> return $ A.Unquote (ExprRange r)
+      C.TryAll r -> return $ A.TryAll (ExprRange r)
 
   -- DontCare
       C.DontCare e -> A.DontCare <$> toAbstract e

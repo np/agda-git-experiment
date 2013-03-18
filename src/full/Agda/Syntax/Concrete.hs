@@ -106,6 +106,7 @@ data Expr
         | Quote !Range                         -- ^ ex: @quote@, should be applied to a name
         | QuoteTerm !Range                     -- ^ ex: @quoteTerm@, should be applied to a term
         | Unquote !Range                       -- ^ ex: @unquote@, should be applied to a term of type @Term@
+        | TryAll !Range                        -- ^ ex: @tryAll@, should be applied to a non-empty list of terms
         | DontCare Expr                        -- ^ to print irrelevant things
     deriving (Typeable)
 
@@ -439,6 +440,7 @@ instance HasRange Expr where
             Quote r             -> r
             QuoteTerm r         -> r
             Unquote r           -> r
+            TryAll r            -> r
             DontCare{}          -> noRange
 
 -- instance HasRange Telescope where
@@ -606,6 +608,7 @@ instance KillRange Expr where
   killRange (Quote _)           = Quote noRange
   killRange (QuoteTerm _)       = QuoteTerm noRange
   killRange (Unquote _)         = Unquote noRange
+  killRange (TryAll _)          = TryAll noRange
   killRange (DontCare e)        = killRange1 DontCare e
 
 instance KillRange ImportDirective where

@@ -677,6 +677,14 @@ coerce v t1 t2 = blockTerm t2 $ do
   where
     fallback = v <$ do workOnTypes $ leqType t1 t2
 
+tryCoerce :: Term -> Type -> Type -> TCM (Maybe Term)
+tryCoerce e t1 t2 =
+  (Just <$> coerce e t1 t2)
+  `catchError` \err -> case err of
+    -- NP 2013-03-18: I'm not sure about this PatternErr thingy
+    PatternErr s -> put s >> return Nothing
+    _            -> return Nothing
+
 ---------------------------------------------------------------------------
 -- * Sorts
 ---------------------------------------------------------------------------

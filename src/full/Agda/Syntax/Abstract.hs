@@ -82,6 +82,7 @@ data Expr
         | Quote ExprInfo                     -- ^
         | QuoteTerm ExprInfo                 -- ^
         | Unquote ExprInfo                   -- ^ The splicing construct: unquote ...
+        | TryAll ExprInfo                    -- ^ Try all given expression keep the only one with the expected type
         | DontCare Expr                      -- ^ for printing DontCare from Syntax.Internal
         | PatternSyn QName
   deriving (Typeable, Show)
@@ -342,6 +343,7 @@ instance HasRange Expr where
     getRange (Quote i)  	   = getRange i
     getRange (QuoteTerm i)  	   = getRange i
     getRange (Unquote i)  	   = getRange i
+    getRange (TryAll i)  	   = getRange i
     getRange (DontCare{})          = noRange
     getRange (PatternSyn x)        = getRange x
 
@@ -447,6 +449,7 @@ instance KillRange Expr where
   killRange (Quote i)              = killRange1 Quote i
   killRange (QuoteTerm i)          = killRange1 QuoteTerm i
   killRange (Unquote i)            = killRange1 Unquote i
+  killRange (TryAll i)             = killRange1 TryAll i
   killRange (DontCare e)           = DontCare e
   killRange (PatternSyn x)         = killRange1 PatternSyn x
 
@@ -580,6 +583,7 @@ allNames (FunDef _ q _ cls)       = q <| Fold.foldMap allNamesC cls
   allNamesE Quote {}                     = Seq.empty
   allNamesE QuoteTerm {}                 = Seq.empty
   allNamesE Unquote {}                   = Seq.empty
+  allNamesE TryAll {}                   = Seq.empty
   allNamesE DontCare {}                  = Seq.empty
   allNamesE (PatternSyn x)               = Seq.empty
 
@@ -713,6 +717,7 @@ substExpr s e = case e of
   Quote i               -> e
   QuoteTerm i           -> e
   Unquote i             -> e
+  TryAll{}              -> e
   DontCare e            -> DontCare (substExpr s e)
   PatternSyn x          -> e
 

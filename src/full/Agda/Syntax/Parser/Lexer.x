@@ -159,6 +159,7 @@ tokens :-
 <0,code> quote		{ keyword KwQuote }
 <0,code> quoteTerm	{ keyword KwQuoteTerm }
 <0,code> unquote	{ keyword KwUnquote }
+<0,code> tryAll		{ keyword KwTryAll }
 <0,code> syntax		{ keyword KwSyntax }
 <0,code> pattern	{ keyword KwPatternSyn }
 

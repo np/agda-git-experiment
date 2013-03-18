@@ -113,6 +113,7 @@ import Agda.Utils.Tuple
     'quote'         { TokKeyword KwQuote $$ }
     'quoteTerm'     { TokKeyword KwQuoteTerm $$ }
     'unquote'       { TokKeyword KwUnquote $$ }
+    'tryAll'        { TokKeyword KwTryAll $$ }
 
     setN	{ TokSetN $$ }
     tex		{ TokTeX $$ }
@@ -217,6 +218,7 @@ Token
     | 'quote'         { TokKeyword KwQuote $1 }
     | 'quoteTerm'     { TokKeyword KwQuoteTerm $1 }
     | 'unquote'       { TokKeyword KwUnquote $1 }
+    | 'tryAll'        { TokKeyword KwTryAll $1 }
 
     | setN	    { TokSetN $1 }
     | tex	    { TokTeX $1 }
@@ -561,6 +563,7 @@ Expr3NoCurly
     | 'quote'                           { Quote (getRange $1) }
     | 'quoteTerm'                       { QuoteTerm (getRange $1) }
     | 'unquote'                         { Unquote (getRange $1) }
+    | 'tryAll'                          { TryAll (getRange $1) }
     | setN				{ SetN (getRange (fst $1)) (snd $1) }
     | '{{' Expr DoubleCloseBrace			{ InstanceArg (getRange ($1,$2,$3))
                                                           (unnamed $2) }

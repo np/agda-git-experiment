@@ -609,6 +609,7 @@ instance DotVars A.Expr where
     A.Quote {}             -> __IMPOSSIBLE__
     A.QuoteTerm {}         -> __IMPOSSIBLE__
     A.Unquote {}           -> __IMPOSSIBLE__
+    A.TryAll {}            -> __IMPOSSIBLE__
     A.DontCare v           -> dotVars v
     A.PatternSyn n         -> Set.empty
 

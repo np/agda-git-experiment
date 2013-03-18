@@ -284,6 +284,7 @@ instance Rename Expr where
       Quote i               -> e
       QuoteTerm i           -> e
       Unquote i             -> e
+      TryAll i              -> e
       DontCare e            -> DontCare (rename rho e)
       PatternSyn n          -> e
 

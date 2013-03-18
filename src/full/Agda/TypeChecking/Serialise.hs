@@ -500,6 +500,7 @@ instance EmbPrj A.Expr where
   icode (A.Unquote _)           = icode0 23
   icode (A.DontCare a)          = icode1 24 a
   icode (A.PatternSyn a)        = icode1 25 a
+  icode (A.TryAll _)            = icode0 26
 
   value = vcase valu
     where
@@ -530,6 +531,7 @@ instance EmbPrj A.Expr where
       valu [23]       = valu0 (A.Unquote i)
       valu [24, a]    = valu1 A.DontCare a
       valu [25, a]    = valu1 A.PatternSyn a
+      valu [26]       = valu0 (A.TryAll i)
       valu _          = malformed
 
       i = ExprRange noRange

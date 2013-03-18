@@ -601,6 +601,7 @@ checkExpr e t =
         A.Quote _ -> typeError $ GenericError "quote must be applied to a defined name"
         A.QuoteTerm _ -> typeError $ GenericError "quoteTerm must be applied to a term"
         A.Unquote _ -> typeError $ GenericError "unquote must be applied to a term"
+        A.TryAll{} -> typeError $ GenericError "tryAll must be applied to a non-empty list of terms"
 
         A.AbsurdLam i h -> checkAbsurdLambda i h e t
 
@@ -728,6 +729,19 @@ checkApplication hd args e t = do
           p'            = A.patternToExpr $ setRange (getRange n) p
           e'            = A.lambdaLiftExpr ns' (A.substExpr zs p') `A.app` as
       checkExpr e' t
+
+    A.TryAll{}
+      | null args ->
+          typeError $ GenericError "tryAll: too few arguments"
+      | not (all (visible . argInfo) args) ->
+          typeError $ GenericError "tryAll: unexpected implicit/hidden arguments"
+      | otherwise -> do
+          ets <- mapM (inferExpr . namedThing . unArg) args
+          es <- mapM (\(e,t') -> tryCoerce e t' t) ets
+          case filter isJust es of
+            [Just e] -> return e
+            [] -> typeError $ GenericError "tryAll: none succeeded"
+            _ -> typeError $ GenericError "tryAll: too many succeeded"
 
     -- Subcase: defined symbol or variable.
     _ -> checkHeadApplication e t hd $ map convArg args
