@@ -542,7 +542,7 @@ allNames (DataDef _ q _ decls)    = q <| Fold.foldMap allNames decls
 allNames (RecSig _ q _ _)         = Seq.singleton q
 allNames (RecDef _ q _ c _ _ decls) =
   q <| foldMap Seq.singleton c >< Fold.foldMap allNames decls
-allNames (FunDef _ q _ cls)       = q <| Fold.foldMap allNamesC cls
+allNames (FunDef _ q0 _ cls)       = q0 <| Fold.foldMap allNamesC cls
   where
   allNamesC :: Clause -> Seq QName
   allNamesC (Clause _ rhs decls) = allNamesR rhs ><
@@ -585,7 +585,7 @@ allNames (FunDef _ q _ cls)       = q <| Fold.foldMap allNamesC cls
   allNamesE QuoteTerm {}                 = Seq.empty
   allNamesE Unquote {}                   = Seq.empty
   allNamesE DontCare {}                  = Seq.empty
-  allNamesE (PatternSyn x)               = Seq.empty
+  allNamesE PatternSyn{}                 = Seq.empty
 
   allNamesLam :: LamBinding -> Seq QName
   allNamesLam DomainFree {}      = Seq.empty

@@ -34,7 +34,7 @@ module Agda.Syntax.Concrete
     , ThingWithFixity(..)
     , topLevelModuleName
     -- * Pattern tools
-    , patternHead, patternNames
+    , patternNames
     -- * Concrete instances
     , Color
     , Arg
@@ -45,8 +45,6 @@ module Agda.Syntax.Concrete
     where
 
 import Data.Typeable (Typeable)
-import Data.Foldable hiding (concatMap)
-import Data.Traversable
 import Agda.Syntax.Position
 import Agda.Syntax.Common hiding (Arg, Dom, NamedArg, ArgInfo)
 import qualified Agda.Syntax.Common as Common
@@ -71,7 +69,7 @@ data OpApp e
     deriving (Typeable, Functor)
 
 fromOrdinary :: e -> OpApp e -> e
-fromOrdinary d (Ordinary e) = e
+fromOrdinary _ (Ordinary e) = e
 fromOrdinary d _            = d
 
 -- | Concrete expressions. Should represent exactly what the user wrote.
@@ -347,44 +345,25 @@ topLevelModuleName (_, ds) = case last ds of
 data AppView = AppView Expr [NamedArg Expr]
 
 appView :: Expr -> AppView
-appView (App r e1 e2) = vApp (appView e1) e2
+appView (App _ e1 e2) = vApp (appView e1) e2
     where
 	vApp (AppView e es) arg = AppView e (es ++ [arg])
 appView (RawApp _ (e:es)) = AppView e $ map arg es
     where
-	arg (HiddenArg   _ e) = noColorArg Hidden    Relevant e
-	arg (InstanceArg _ e) = noColorArg Instance  Relevant e
-	arg e		      = noColorArg NotHidden Relevant (unnamed e)
+	arg (HiddenArg   _ e') = noColorArg Hidden    Relevant e'
+	arg (InstanceArg _ e') = noColorArg Instance  Relevant e'
+	arg e'		      = noColorArg NotHidden Relevant (unnamed e')
 appView e = AppView e []
 
 {--------------------------------------------------------------------------
     Patterns
  --------------------------------------------------------------------------}
 
--- | Get the leftmost symbol in a pattern.
-patternHead :: Pattern -> Maybe Name
-patternHead p =
-  case p of
-    IdentP x             -> return $ unqualify x
-    AppP p p'            -> patternHead p
-    RawAppP _ []         -> __IMPOSSIBLE__
-    RawAppP _ (p:_)      -> patternHead p
-    OpAppP _ name ps     -> return $ unqualify name
-    HiddenP _ (namedPat) -> patternHead (namedThing namedPat)
-    ParenP _ p           -> patternHead p
-    WildP _              -> Nothing
-    AbsurdP _            -> Nothing
-    AsP _ x p            -> patternHead p
-    DotP{}               -> Nothing
-    LitP (LitQName _ x)  -> Nothing -- return $ unqualify x -- does not compile
-    LitP _               -> Nothing
-    InstanceP _ (namedPat) -> patternHead (namedThing namedPat)
-
 
 -- | Get all the identifiers in a pattern in left-to-right order.
 patternNames :: Pattern -> [Name]
-patternNames p =
-  case p of
+patternNames pat =
+  case pat of
     IdentP x             -> [unqualify x]
     AppP p p'            -> concatMap patternNames [p, namedArg p']
     RawAppP _ ps         -> concatMap patternNames  ps
@@ -393,7 +372,7 @@ patternNames p =
     ParenP _ p           -> patternNames p
     WildP _              -> []
     AbsurdP _            -> []
-    AsP _ x p            -> patternNames p
+    AsP _ _ p            -> patternNames p
     DotP{}               -> []
     LitP _               -> []
     InstanceP _ (namedPat) -> patternNames (namedThing namedPat)
@@ -404,7 +383,7 @@ patternNames p =
 
 instance HasRange e => HasRange (OpApp e) where
     getRange e = case e of
-        Ordinary e -> getRange e
+        Ordinary e' -> getRange e'
         SyntaxBindingLambda r _ _ -> r
 
 instance HasRange Expr where
@@ -420,9 +399,9 @@ instance HasRange Expr where
             WithApp r _ _       -> r
 	    Lam r _ _		-> r
             AbsurdLam r _       -> r
-            ExtendedLam r _       -> r
+            ExtendedLam r _     -> r
 	    Fun r _ _		-> r
-	    Pi b e		-> fuseRange b e
+	    Pi b e'		-> fuseRange b e'
 	    Set r		-> r
 	    Prop r		-> r
 	    SetN r _		-> r

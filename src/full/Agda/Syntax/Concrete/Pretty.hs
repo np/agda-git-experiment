@@ -29,6 +29,7 @@ instance Show ImportDirective where show = show . pretty
 instance Show Pragma	      where show = show . pretty
 instance Show RHS	      where show = show . pretty
 
+braces' :: Doc -> Doc
 braces' d = case render d of
   -- Add space to avoid starting a comment
   '-':_ -> braces (text " " <> d)
@@ -38,6 +39,7 @@ braces' d = case render d of
 dbraces :: Doc -> Doc
 dbraces = braces . braces'
 
+arrow, lambda, underscore :: Doc
 arrow  = text "\x2192"
 lambda = text "\x03bb"
 underscore = text "_"
@@ -91,7 +93,7 @@ showChar' c
     | escapeMe c = showLitChar c
     | otherwise	 = showString [c]
     where
-	escapeMe c = not (isPrint c) || c == '\\'
+	escapeMe c' = not (isPrint c') || c' == '\\'
 
 instance Pretty Relevance where
   pretty Forced     = empty
@@ -109,15 +111,15 @@ instance Pretty (OpApp Expr) where
   pretty (SyntaxBindingLambda r bs e) = pretty (Lam r bs e)
 
 instance Pretty Expr where
-    pretty e =
-	case e of
+    pretty expr =
+	case expr of
 	    Ident x	     -> pretty x
 	    Lit l	     -> pretty l
 	    QuestionMark _ n -> text "?" <> maybe empty (text . show) n
 	    Underscore _ n   -> maybe underscore text n
 --	    Underscore _ n   -> underscore <> maybe empty (text . show) n
 	    App _ _ _	     ->
-		case appView e of
+		case appView expr of
 		    AppView e1 args	->
 			fsep $ pretty e1 : map pretty args
 -- 			sep [ pretty e1
@@ -258,7 +260,7 @@ instance Pretty LHS where
             , nest 2 $ pThing "rewrite" eqs
             , nest 2 $ pThing "with" es
             ]
-      pThing thing []       = empty
+      pThing _     []       = empty
       pThing thing (e : es) = fsep $ (text thing <+> pretty e)
 			           : map ((text "|" <+>) . pretty) es
 
@@ -387,11 +389,11 @@ instance Pretty Declaration where
 		    ]
 	    ModuleMacro _ x (RecordModuleIFS _ rec) open i ->
 		sep [ pretty open <+> text "module" <+> pretty x
-		    , nest 2 $ text "=" <+> pretty rec <+> text "{{...}}"
+		    , nest 2 $ text "=" <+> pretty rec <+> text "{{...}}" <+> pretty i
 		    ]
 	    Open _ x i	-> hsep [ text "open", pretty x, pretty i ]
-	    Import _ x rn open i   ->
-		hsep [ pretty open, text "import", pretty x, as rn, pretty i ]
+	    Import _ m rn open i   ->
+		hsep [ pretty open, text "import", pretty m, as rn, pretty i ]
 		where
 		    as Nothing	= empty
 		    as (Just x) = text "as" <+> pretty (asName x)
@@ -449,8 +451,8 @@ instance Pretty [Pattern] where
     pretty = fsep . map pretty
 
 instance Pretty Pattern where
-    pretty p =
-	case p of
+    pretty pat =
+	case pat of
 	    IdentP x      -> pretty x
 	    AppP p1 p2    -> sep [ pretty p1, nest 2 $ pretty p2 ]
 	    RawAppP _ ps  -> fsep $ map pretty ps
@@ -465,10 +467,10 @@ instance Pretty Pattern where
 	    LitP l        -> pretty l
 
 prettyOpApp :: Pretty a => QName -> [a] -> [Doc]
-prettyOpApp q es = prOp ms xs es
+prettyOpApp q = prOp ms' xs'
   where
-    ms = init (qnameParts q)
-    xs = case unqualify q of
+    ms' = init (qnameParts q)
+    xs' = case unqualify q of
            Name _ xs -> xs
            NoName{}  -> __IMPOSSIBLE__
     prOp ms (Hole : xs) (e : es) = pretty e : prOp ms xs es
