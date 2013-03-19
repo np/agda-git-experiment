@@ -602,6 +602,18 @@ checkExpr e t =
         A.QuoteTerm _ -> typeError $ GenericError "quoteTerm must be applied to a term"
         A.Unquote _ -> typeError $ GenericError "unquote must be applied to a term"
 
+        A.QuoteContext _ -> do
+          ctx <- mapM (normalise . snd) =<< getContextTermTypes
+          toTypes <- toTerm
+          ty <- el (primList <@> primAgdaType)
+          coerce (toTypes ctx) ty t
+       -- I.Lit . LitInt noRange . fromIntegral <$> getContextSize
+{-
+getContext      :: TCM [Dom (Name, Type)]
+getContextTerms :: TCM [Term]
+getContextSize  :: TCM Nat
+-}
+
         A.AbsurdLam i h -> checkAbsurdLambda i h e t
 
         A.ExtendedLam i di qname cs -> checkExtendedLambda i di qname cs e t

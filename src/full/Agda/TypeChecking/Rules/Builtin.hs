@@ -41,7 +41,9 @@ coreBuiltins :: [BuiltinInfo]
 coreBuiltins = map (\(x,z) -> BuiltinInfo x z)
   [ (builtinList               |-> BuiltinData (tset --> tset) [builtinNil, builtinCons])
   , (builtinArg                |-> BuiltinData (tset --> tset) [builtinArgArg])
-  , (builtinArgInfo            |-> BuiltinData tset [builtinArgArgInfo])
+  , (builtinDom                |-> BuiltinData (tset --> tset) [builtinDomDom])
+  , (builtinAbs                |-> BuiltinData (tset --> tset) [builtinAbsAbs])
+  , (builtinArgInfo            |-> BuiltinData tset [builtinArgInfoArgInfo])
   , (builtinBool               |-> BuiltinData tset [builtinTrue, builtinFalse])
   , (builtinNat                |-> BuiltinData tset [builtinZero, builtinSuc])
   , (builtinLevel              |-> builtinPostulate tset)
@@ -66,17 +68,22 @@ coreBuiltins = map (\(x,z) -> BuiltinInfo x z)
                                                [builtinRefl])
   , (builtinHiding             |-> BuiltinData tset [builtinHidden, builtinInstance, builtinVisible])
   , (builtinRelevance          |-> BuiltinData tset [builtinRelevant, builtinIrrelevant])
+  , (builtinTele               |-> BuiltinData (tset --> tset) [builtinTeleNil,builtinTeleCons])
+  , (builtinTeleNil            |-> BuiltinDataCons (hPi "A" tset (ttele tv0))
+  , (builtinTeleCons           |-> BuiltinDataCons (hPi "A" tset (tv0 --> tabs (ttele tv0) --> ttele tv0))
   , (builtinRefl               |-> BuiltinDataCons (hPi "a" (el primLevel) $ hPi "A" (return $ sort $ varSort 0) $
                                                     hPi "x" (El (varSort 1) <$> varM 0) $
                                                     El (varSort 2) <$> primEquality <#> varM 2 <#> varM 1 <@> varM 0 <@> varM 0))
-  , (builtinNil                |-> BuiltinDataCons (hPi "A" tset (el (list v0))))
-  , (builtinCons               |-> BuiltinDataCons (hPi "A" tset (tv0 --> el (list v0) --> el (list v0))))
+  , (builtinNil                |-> BuiltinDataCons (hPi "A" tset (tlist tv0)))
+  , (builtinCons               |-> BuiltinDataCons (hPi "A" tset (tv0 --> tlist tv0 --> tlist tv0)))
   , (builtinZero               |-> BuiltinDataCons tnat)
   , (builtinSuc                |-> BuiltinDataCons (tnat --> tnat))
   , (builtinTrue               |-> BuiltinDataCons tbool)
   , (builtinFalse              |-> BuiltinDataCons tbool)
   , (builtinArgArg             |-> BuiltinDataCons (hPi "A" tset (targinfo --> tv0 --> targ tv0)))
-  , (builtinArgArgInfo         |-> BuiltinDataCons (thiding --> trelevance --> targinfo))
+  , (builtinAbsAbs             |-> BuiltinDataCons (hPi "A" tset (tstring --> tv0 --> tabs tv0)))
+  , (builtinDomDom             |-> BuiltinDataCons (hPi "A" tset (targinfo --> tv0 --> tdom tv0)))
+  , (builtinArgInfoArgInfo     |-> BuiltinDataCons (thiding --> trelevance --> targinfo))
   , (builtinAgdaTypeEl         |-> BuiltinDataCons (tsort --> tterm --> ttype))
   , (builtinAgdaTermVar        |-> BuiltinDataCons (tnat --> targs --> tterm))
   , (builtinAgdaTermLam        |-> BuiltinDataCons (thiding --> tterm --> tterm))
@@ -117,6 +124,7 @@ coreBuiltins = map (\(x,z) -> BuiltinInfo x z)
   , (builtinAgdaFunDef                |-> builtinPostulate tset) -- internally this is QName
   , (builtinAgdaDataDef               |-> builtinPostulate tset) -- internally this is QName
   , (builtinAgdaRecordDef             |-> builtinPostulate tset) -- internally this is QName
+  --, (builtinAgdaContext               |-> builtinPostulate tset) -- internally this is Context
   , (builtinAgdaDefinition            |-> BuiltinData tset [builtinAgdaDefinitionFunDef
                                                            ,builtinAgdaDefinitionDataDef
                                                            ,builtinAgdaDefinitionDataConstructor
@@ -140,19 +148,26 @@ coreBuiltins = map (\(x,z) -> BuiltinInfo x z)
         tv0 = el v0
         tv1 = el v1
 
-        arg :: TCM Term -> TCM Term
+        arg, dom, abs, tele :: TCM Term -> TCM Term
         arg t = primArg <@> t
+        dom t = primDom <@> t
+        abs t = primAbs <@> t
+        tele t = primTele <@> t
 
-        targ x     = el (arg (fmap unEl x))
-        targs      = el (list (arg primAgdaTerm))
+        targ x     = el (arg (unEl <$> x))
+        tdom x     = el (dom (unEl <$> x))
+        tabs x     = el (abs (unEl <$> x))
+        ttele x    = el (tele (unEl <$> x))
+        tlist x    = el (list (unEl <$> x))
         tterm      = el primAgdaTerm
+        targs      = tlist (targ tterm)
         tqname     = el primQName
         tnat       = el primNat
         tsize      = el primSize
         tbool      = el primBool
         thiding    = el primHiding
         trelevance = el primRelevance
---        tcolors    = el (list primAgdaTerm) -- TODO guilhem
+--        tcolors    = tlist tterm -- TODO guilhem
         targinfo   = el primArgInfo
         ttype      = el primAgdaType
         tsort      = el primAgdaSort

@@ -167,6 +167,11 @@ getContextArgs = do
 getContextTerms :: MonadTCM tcm => tcm [Term]
 getContextTerms = map unArg <$> getContextArgs
 
+{-# SPECIALIZE getContextTermTypes :: TCM [(Term,Type)] #-}
+getContextTermTypes :: MonadTCM tcm => tcm [(Term,Type)]
+getContextTermTypes = termTypes <$> getContext
+  where termTypes ctx = reverse $ [ (var i, ty) | (Common.Dom _ (_,ty), i) <- zip ctx [0..] ]
+
 -- | Get the current context as a 'Telescope' with the specified 'Hiding'.
 {-# SPECIALIZE getContextTelescope :: TCM Telescope #-}
 getContextTelescope :: MonadTCM tcm => tcm Telescope

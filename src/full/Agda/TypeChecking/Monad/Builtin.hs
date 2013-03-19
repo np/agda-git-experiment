@@ -86,7 +86,8 @@ primInteger, primFloat, primChar, primString, primBool, primTrue, primFalse,
     primLevel, primLevelZero, primLevelSuc, primLevelMax,
     primIrrAxiom,
     -- builtins for reflection:
-    primQName, primArgInfo, primArgArgInfo, primArg, primArgArg, primAgdaTerm, primAgdaTermVar,
+    primQName, primArgInfo, primArgInfoArgInfo, primArg, primArgArg, primDom, primDomDom,
+    primAgdaTerm, primAgdaTermVar,
     primAgdaTermLam, primAgdaTermDef, primAgdaTermCon, primAgdaTermPi,
     primAgdaTermSort, primAgdaTermUnsupported,
     primAgdaType, primAgdaTypeEl,
@@ -136,6 +137,8 @@ primIrrAxiom     = getBuiltin builtinIrrAxiom
 primQName        = getBuiltin builtinQName
 primArg          = getBuiltin builtinArg
 primArgArg       = getBuiltin builtinArgArg
+primDom          = getBuiltin builtinDom
+primDomDom       = getBuiltin builtinDomDom
 primAgdaSort     = getBuiltin builtinAgdaSort
 primAgdaType     = getBuiltin builtinAgdaType
 primAgdaTypeEl   = getBuiltin builtinAgdaTypeEl
@@ -147,7 +150,7 @@ primRelevance    = getBuiltin builtinRelevance
 primRelevant     = getBuiltin builtinRelevant
 primIrrelevant   = getBuiltin builtinIrrelevant
 primArgInfo      = getBuiltin builtinArgInfo
-primArgArgInfo   = getBuiltin builtinArgArgInfo
+primArgInfoArgInfo = getBuiltin builtinArgInfoArgInfo
 primAgdaSortSet  = getBuiltin builtinAgdaSortSet
 primAgdaSortLit  = getBuiltin builtinAgdaSortLit
 primAgdaSortUnsupported = getBuiltin builtinAgdaSortUnsupported
@@ -162,6 +165,7 @@ primAgdaTermUnsupported     = getBuiltin builtinAgdaTermUnsupported
 primAgdaFunDef                    = getBuiltin builtinAgdaFunDef
 primAgdaDataDef                   = getBuiltin builtinAgdaDataDef
 primAgdaRecordDef                 = getBuiltin builtinAgdaRecordDef
+--primAgdaContext                   = getBuiltin builtinAgdaContext
 primAgdaDefinitionFunDef          = getBuiltin builtinAgdaDefinitionFunDef
 primAgdaDefinitionDataDef         = getBuiltin builtinAgdaDefinitionDataDef
 primAgdaDefinitionRecordDef       = getBuiltin builtinAgdaDefinitionRecordDef
@@ -212,6 +216,8 @@ builtinAgdaSortLit  = "AGDASORTLIT"
 builtinAgdaSortUnsupported = "AGDASORTUNSUPPORTED"
 builtinAgdaType     = "AGDATYPE"
 builtinAgdaTypeEl   = "AGDATYPEEL"
+--builtinAgdaContextEntry = "AGDACONTEXTENTRY"
+--builtinAgdaContextEntryCtx = "AGDACONTEXTENTRY"
 builtinHiding       = "HIDING"
 builtinHidden       = "HIDDEN"
 builtinInstance     = "INSTANCE"
@@ -220,9 +226,11 @@ builtinRelevance    = "RELEVANCE"
 builtinRelevant     = "RELEVANT"
 builtinIrrelevant   = "IRRELEVANT"
 builtinArg          = "ARG"
-builtinArgInfo      = "ARGINFO"
-builtinArgArgInfo   = "ARGARGINFO"
 builtinArgArg       = "ARGARG"
+builtinDom          = "DOM"
+builtinDomDom       = "DOMDOM"
+builtinArgInfo          = "ARGINFO"
+builtinArgInfoArgInfo   = "ARGINFOARGINFO"
 builtinAgdaTerm         = "AGDATERM"
 builtinAgdaTermVar      = "AGDATERMVAR"
 builtinAgdaTermLam      = "AGDATERMLAM"

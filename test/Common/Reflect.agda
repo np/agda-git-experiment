@@ -28,13 +28,26 @@ data Relevance : Set where
 data ArgInfo : Set where
   arginfo : Hiding → Relevance → ArgInfo
 
+{-# BUILTIN ARGINFO        ArgInfo #-}
+{-# BUILTIN ARGINFOARGINFO arginfo #-}
+
 data Arg A : Set where
   arg : ArgInfo → A → Arg A
 
-{-# BUILTIN ARGINFO    ArgInfo #-}
-{-# BUILTIN ARG        Arg     #-}
-{-# BUILTIN ARGARG     arg     #-}
-{-# BUILTIN ARGARGINFO arginfo #-}
+{-# BUILTIN ARG    Arg #-}
+{-# BUILTIN ARGARG arg #-}
+
+data Dom A : Set where
+  dom : ArgInfo → A → Dom A
+
+{-# BUILTIN DOM    Dom #-}
+{-# BUILTIN DOMDOM dom #-}
+
+data Abs A : Set where
+  abs : String → A → Abs A
+
+{-# BUILTIN ABS    Abs #-}
+{-# BUILTIN ABSABS abs #-}
 
 mutual
 
@@ -76,6 +89,17 @@ mutual
 {-# BUILTIN AGDASORTSET         set     #-}
 {-# BUILTIN AGDASORTLIT         lit     #-}
 {-# BUILTIN AGDASORTUNSUPPORTED unknown #-}
+
+data Tele A : Set where
+  []  : Tele A
+  _∷_ : A → Abs (Tele A) → Tele A
+
+{-# BUILTIN TELE     Tele     #-}
+{-# BUILTIN TELENIL  Tele.[]  #-}
+{-# BUILTIN TELECONS Tele._∷_ #-}
+
+Telescope : Set
+Telescope = Tele (Dom Type)
 
 postulate
   FunDef    : Set

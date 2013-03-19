@@ -102,6 +102,7 @@ checkAlias t' info delayed i name e = do
     , text (show name) <+> equals <+> prettyTCM e
     ]
   -- Infer the type of the rhs
+{-
   (v, t) <- applyRelevanceToContext (argInfoRelevance info) $
                                     inferOrCheck e (Just t')
   -- v <- coerce v t t'

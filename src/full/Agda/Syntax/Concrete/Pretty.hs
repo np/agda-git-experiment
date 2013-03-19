@@ -364,7 +364,7 @@ instance Pretty Declaration where
 -}
             Infix f xs	->
 		pretty f <+> (fsep $ punctuate comma $ map pretty xs)
-            Syntax n xs -> text "syntax" <+> pretty n <+> text "..."
+            Syntax n xs -> text "syntax" <+> pretty n <+> text "..." -- WAT?
             PatternSyn _ n as p -> text "pattern" <+> pretty n <+> fsep (map pretty as)
                                      <+> text "=" <+> pretty p
 	    Mutual _ ds	    -> namedBlock "mutual" ds
