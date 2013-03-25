@@ -211,12 +211,14 @@ runInteraction (IOTCM current highlighting highlightingMethod cmd)
     handleErr e = do
         s <- lift $ prettyError e
         x <- lift . gets $ optShowImplicit . stPragmaOptions
+        y <- lift . gets $ optNiceDisplay  . stPragmaOptions
         let
         mapM_ putResponse $
             [ Resp_DisplayInfo $ Info_Error s ] ++
             tellEmacsToJumpToError (getRange e) ++
             [ Resp_Status $ Status { sChecked = False
                                    , sShowImplicitArguments = x
+                                   , sNiceDisplay = y
                                    } ]
 
 
@@ -280,12 +282,19 @@ data Interaction
     ------------------------------------------------------------------------
     -- Implicit arguments
 
+    -- TODO use Option instead of Bool + ToggleImplicitArgs
     -- | Tells Agda whether or not to show implicit arguments.
   | ShowImplicitArgs    Bool -- Show them?
 
 
     -- | Toggle display of implicit arguments.
   | ToggleImplicitArgs
+
+    ------------------------------------------------------------------------
+    -- Nice display
+
+    -- | Tells Agda whether or not to use the nice display.
+  | NiceDisplay Option
 
     ------------------------------------------------------------------------
     -- | Goal commands
@@ -327,6 +336,14 @@ data Interaction
   | Cmd_compute         Bool -- Ignore abstract?
                         InteractionId Range String
         deriving Read
+
+data Option = Set | Unset | Toggle
+        deriving Read
+
+option :: Option -> Bool -> Bool
+option Set    _ = True
+option Unset  _ = False
+option Toggle x = not x
 
 data IOTCM
     = IOTCM
@@ -508,6 +525,14 @@ interpret ToggleImplicitArgs = do
   setCommandLineOptions' $
     opts { optPragmaOptions =
              ps { optShowImplicit = not $ optShowImplicit ps } }
+
+interpret (NiceDisplay opt) = do
+  opts <- lift commandLineOptions
+  setCommandLineOptions' $
+    opts { optPragmaOptions =
+             (optPragmaOptions opts)
+             { optNiceDisplay =
+                 option opt . optNiceDisplay $ ps } }
 
 interpret (Cmd_load_highlighting_info source) = do
     -- Make sure that the include directories have
@@ -801,6 +826,7 @@ status :: CommandM Status
 status = do
   cf <- gets theCurrentFile
   showImpl <- lift showImplicitArguments
+  niceDisp <- lift hasNiceDisplay
 
   -- Check if the file was successfully type checked, and has not
   -- changed since. Note: This code does not check if any dependencies
@@ -818,6 +844,7 @@ status = do
                  Map.lookup f <$> sourceToModule)
 
   return $ Status { sShowImplicitArguments = showImpl
+                  , sNiceDisplay           = niceDisp
                   , sChecked               = checked
                   }
 

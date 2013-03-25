@@ -74,6 +74,8 @@ data DisplayInfo
 data Status = Status
   { sShowImplicitArguments :: Bool
     -- ^ Are implicit arguments displayed?
+  , sNiceDisplay           :: Bool
+    -- ^ Is the display nice?
   , sChecked               :: Bool
     -- ^ Has the module been successfully type checked?
   }

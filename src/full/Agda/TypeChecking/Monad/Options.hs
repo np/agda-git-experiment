@@ -225,6 +225,9 @@ showImplicitArguments = optShowImplicit <$> pragmaOptions
 showIrrelevantArguments :: TCM Bool
 showIrrelevantArguments = optShowIrrelevant <$> pragmaOptions
 
+hasNiceDisplay :: TCM Bool
+hasNiceDisplay = optNiceDisplay <$> pragmaOptions
+
 -- | Switch on printing of implicit and irrelevant arguments.
 --   E.g. for reification in with-function generation.
 withShowAllArguments :: TCM a -> TCM a

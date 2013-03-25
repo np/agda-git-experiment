@@ -227,6 +227,7 @@ constituents.")
     (agda2-restart                           "\C-c\C-x\C-r"       (global)       "Kill and restart Agda")
     (agda2-remove-annotations                "\C-c\C-x\C-d"       (global)       "Remove goals and highlighting (\"deactivate\")")
     (agda2-display-implicit-arguments        "\C-c\C-x\C-h"       (global)       "Toggle display of hidden arguments")
+    (agda2-nice-display                      "\C-c\C-x\C-n"       (global)       "Toggle nice display")
     (agda2-show-constraints                  ,(kbd "C-c C-=")     (global)       "Show constraints")
     (agda2-solveAll                          ,(kbd "C-c C-s")     (global)       "Solve constraints")
     (agda2-show-goals                        ,(kbd "C-c C-?")     (global)       "Show goals")
@@ -1466,6 +1467,19 @@ the argument is a positive number, otherwise turn it off."
         ((and (numberp arg)
               (> arg 0))    (agda2-go t t "ShowImplicitArgs" "True"))
         (t                  (agda2-go t t "ShowImplicitArgs" "False"))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Nice display
+
+(defun agda2-nice-display (&optional arg)
+  "Toggle nice display.
+With prefix argument, turn on nice display if
+the argument is a positive number, otherwise turn it off."
+  (interactive "P")
+  (cond ((eq arg nil)       (agda2-go t t "NiceDisplay" "Toggle"))
+        ((and (numberp arg)
+              (> arg 0))    (agda2-go t t "NiceDisplay" "Set"))
+        (t                  (agda2-go t t "NiceDisplay" "Unset"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;

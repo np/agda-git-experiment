@@ -87,6 +87,7 @@ data CommandLineOptions =
 data PragmaOptions = PragmaOptions
   { optShowImplicit              :: Bool
   , optShowIrrelevant            :: Bool
+  , optNiceDisplay               :: Bool
   , optVerbose                   :: Verbosity
   , optProofIrrelevance          :: Bool
   , optAllowUnsolved             :: Bool
@@ -157,6 +158,7 @@ defaultPragmaOptions :: PragmaOptions
 defaultPragmaOptions = PragmaOptions
   { optShowImplicit              = False
   , optShowIrrelevant            = False
+  , optNiceDisplay               = False
   , optVerbose                   = defaultVerbosity
   , optProofIrrelevance          = False
   , optExperimentalIrrelevance   = False
@@ -265,6 +267,7 @@ ignoreInterfacesFlag         o = return $ o { optIgnoreInterfaces          = Tru
 allowUnsolvedFlag            o = return $ o { optAllowUnsolved             = True  }
 showImplicitFlag             o = return $ o { optShowImplicit              = True  }
 showIrrelevantFlag           o = return $ o { optShowIrrelevant            = True  }
+niceDisplayFlag              o = return $ o { optNiceDisplay               = True  }
 runTestsFlag                 o = return $ o { optRunTests                  = True  }
 ghciInteractionFlag          o = return $ o { optGHCiInteraction           = True  }
 vimFlag                      o = return $ o { optGenerateVimFile           = True  }
