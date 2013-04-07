@@ -46,7 +46,7 @@ translateDefn msharp (n, defini) =
         vars <- replicateM (dataPars d + dataIxs d) newName
         return . return $ Fun True n' (Just n) ("datatype: " ++ show n) vars UNIT
     f@(Function{}) -> do
-        let projArgs = maybe 0 (pred . snd) (funProjection f)
+        let projArgs = projectionArguments (funProjection f)
         ccs  <- reverseCCBody projArgs <$> normaliseStatic (funCompiled f)
         let len   = (+ projArgs) . length . clausePats . head .  funClauses $ f
             toEta = arity (defType defini) - len
@@ -234,9 +234,7 @@ substTerm env term = case term of
       let name = unqname q
       del <- getDelayed q
       def <- theDef <$> lift (getConstInfo q)
-      let nr = case def of
-                Function{funProjection = Just (_ , x)} -> pred x
-                _ -> 0
+      let nr = projectionArguments (funProjection def)
       f <- apps name . (replicate nr UNIT ++) <$> mapM (substTerm env . unArg) args
       return $ case del of
         True  -> Lazy f

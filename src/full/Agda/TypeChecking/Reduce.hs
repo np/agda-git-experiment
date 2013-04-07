@@ -352,11 +352,13 @@ unfoldDefinition unfoldDelayed keepGoing v0 f args =
 
     reduceNormal :: Term -> QName -> [MaybeReduced (Arg Term)] -> Delayed -> Bool -> [Clause] -> Maybe CompiledClauses -> TCM (Blocked Term)
     reduceNormal v0 f args delayed nonterminating def mcc = {-# SCC "reduceNormal" #-} do
+        redOpt <- gets stReductionOpts
         case def of
           _ | nonterminating -> defaultResult
           _ | Delayed <- delayed,
               not unfoldDelayed -> defaultResult
           [] -> defaultResult -- no definition for head
+          [_] | redOpt == LimitedReduction -> defaultResult
           cls -> do
             ev <- maybe (appDef' v0 cls args)
                         (\cc -> appDef v0 cc args) mcc

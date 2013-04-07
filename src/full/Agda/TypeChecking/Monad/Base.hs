@@ -103,6 +103,11 @@ data TCState =
            -- ^ Callback fuction to call when there is a response
            --   to give to the interactive frontend.
            --   See the documentation of 'InteractionOutputCallback'.
+         , stReductionOpts     :: ReductionOpts
+           -- ^ These are used by the "nice display" feature which
+           -- provides with a partial normalization which avoids
+           -- carrying noisy reduction steps. Internally, these options
+           -- affect the reduction rules to avoid some steps.
 	 }
 
 -- | A part of the state which is not reverted when an error is thrown
@@ -114,6 +119,8 @@ data PersistentTCState = PersistentTCSt
   , stInteractionOutputCallback  :: InteractionOutputCallback
     -- ^ Options which apply to all files, unless overridden.
   }
+
+data ReductionOpts = NormalReduction | NiceReduction
 
 data FreshThings =
 	Fresh { fMeta	     :: MetaId
@@ -159,6 +166,7 @@ initState =
 	   , stDecodedModules    = Map.empty
          , stInteractionOutputCallback = defaultInteractionOutputCallback
            }
+         , stReductionOpts     = NormalReduction
 	 }
 
 stBuiltinThings :: TCState -> BuiltinThings PrimFun
@@ -624,13 +632,8 @@ data Defn = Axiom
             , funAbstr          :: IsAbstract
             , funDelayed        :: Delayed
               -- ^ Are the clauses of this definition delayed?
-            , funProjection     :: Maybe (QName, Int)
-              -- ^ Is it a record projection?
-              --   If yes, then return the name of the record type and index of
-              --   the record argument.  Start counting with 1, because 0 means that
-              --   it is already applied to the record. (Can happen in module
-              --   instantiation.) This information is used in the termination
-              --   checker.
+            , funProjection     :: Projection
+              -- ^ Is it a projection? (see the type Projection for details)
             , funStatic         :: Bool
               -- ^ Should calls to this function be normalised at compile-time?
             , funCopy           :: Bool
@@ -693,6 +696,27 @@ data Defn = Axiom
             }
             -- ^ Primitive or builtin functions.
     deriving (Typeable, Show)
+
+data Projection = NotAProjection
+                | RecordProjection { recordName :: QName, recordIndexArgument :: Int }
+              -- ^ Record projection:
+              --   Holds the name of the record type and index of
+              --   the record argument.  Start counting with 1, because 0 means that
+              --   it is already applied to the record. (Can happen in module
+              --   instantiation.) This information is used in the termination
+              --   checker.
+                | SimpleProjection
+              -- ^ Simply means that the definition has only one clause and
+              -- the RHS is a variable from the LHS.
+  deriving (Typeable, Show)
+
+recordProjection :: Projection -> Maybe (QName, Int)
+recordProjection (RecordProjection r n) = Just (r, n)
+recordProjection _                      = Nothing
+
+projectionArguments :: Projection -> Int
+projectionArguments (RecordProjection _ n) = pred n
+projectionArguments _                      = 0
 
 defIsRecord :: Defn -> Bool
 defIsRecord Record{} = True

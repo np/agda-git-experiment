@@ -99,10 +99,11 @@ checkCoverage :: QName -> TCM ()
 checkCoverage f = do
   d <- getConstInfo f
   case theDef d of
-    Function{ funProjection = Nothing, funClauses = cs@(_:_) } -> do
+    Function{ funProjection = NotAProjection, funClauses = cs@(_:_) } ->
       coverageCheck f (defType d) cs
-      return ()
-    Function{ funProjection = Just _ } -> __IMPOSSIBLE__
+    Function{ funProjection = SimpleProjection, funClauses = cs@(_:_) } ->
+      coverageCheck f (defType d) cs
+    Function{ funProjection = RecordProjection{} } -> __IMPOSSIBLE__
     _ -> __IMPOSSIBLE__
 
 -- | Top-level function for checking pattern coverage.

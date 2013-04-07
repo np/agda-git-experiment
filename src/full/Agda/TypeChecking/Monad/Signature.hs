@@ -315,9 +315,10 @@ applySection new ptel old ts rd rm = do
                       Function{funMutual = m} -> m
                       _ -> []
                     proj = case oldDef of
-                      Function{funProjection = Just (r, n)}
-                        | size ts < n -> Just (r, n - size ts)
-                      _ -> Nothing
+                      Function{funProjection = RecordProjection r n}
+                        | size ts < n -> RecordProjection r (n - size ts)
+                      Function{funProjection = SimpleProjection} -> SimpleProjection
+                      _ -> NotAProjection
                     extlam = case oldDef of
                       Function{funExtLam = e} -> e
                       _ -> Nothing
@@ -670,9 +671,17 @@ sortOfConst q =
 	    _			   -> fail $ "Expected " ++ show q ++ " to be a datatype."
 
 -- | Is it the name of a record projection?
-isProjection :: QName -> TCM (Maybe (QName, Int))
-isProjection qn = do
+isRecordProjection :: QName -> TCM (Maybe (QName, Int))
+isRecordProjection qn = do
   def <- theDef <$> getConstInfo qn
-  case def of
-    Function { funProjection = result } -> return $ result
-    _                                   -> return $ Nothing
+  return $ case def of
+    Function { funProjection = RecordProjection r n } -> Just (r, n)
+    _                                                 -> Nothing
+
+isSimpleProjection :: QName -> TCM Bool
+isSimpleProjection qn = do
+  def <- theDef <$> getConstInfo qn
+  return $ case def of
+    Function { funProjection = RecordProjection{} } -> True
+    Function { funProjection = SimpleProjection   } -> True
+    _                                               -> False
